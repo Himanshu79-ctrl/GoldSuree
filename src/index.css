@@ -1,0 +1,160 @@
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #201a14;
+  background: #f8f5ef;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  color: #fff;
+  background: #987344;
+}
+
+.font-editorial {
+  font-family: 'Playfair Display', serif;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+img {
+  max-width: 100%;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: #d4af37;
+  color: #17130c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* GoldSuree — Luxury moving marquee */
+
+.gold-marquee {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 17px 0;
+  background: #211a12;
+  border-top: 1px solid rgba(197, 161, 107, 0.25);
+  border-bottom: 1px solid rgba(197, 161, 107, 0.25);
+}
+
+.gold-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: gold-marquee-scroll 32s linear infinite;
+  will-change: transform;
+}
+
+.gold-marquee__group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.gold-marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 17px;
+  padding: 0 25px;
+  white-space: nowrap;
+  color: #ead8b6;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.035em;
+}
+
+.gold-marquee__star {
+  color: #c5a16b;
+  font-size: 13px;
+  font-style: normal;
+}
+
+@keyframes gold-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (hover: hover) {
+  .gold-marquee:hover .gold-marquee__track {
+    animation-play-state: paused;
+  }
+}
+
+@media (max-width: 640px) {
+  .gold-marquee {
+    padding: 14px 0;
+  }
+
+  .gold-marquee__item {
+    gap: 12px;
+    padding: 0 17px;
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gold-marquee__track {
+    animation: none;
+  }
+}
+

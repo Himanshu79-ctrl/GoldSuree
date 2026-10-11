@@ -1,0 +1,39 @@
+
+.gold-hero {
+  isolation: isolate;
+}
+
+.gold-hero-image-frame {
+  box-shadow: 0 28px 70px rgba(65, 47, 26, 0.12);
+}
+
+.gold-hero-image {
+  transform: scale(1.02);
+  transition: transform 1.2s cubic-bezier(0.2, 0.65, 0.3, 1);
+}
+
+.gold-hero-image-frame:hover .gold-hero-image {
+  transform: scale(1.07);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gold-hero-image {
+    transform: none;
+    transition: none;
+  }
+
+  .gold-hero-image-frame:hover .gold-hero-image {
+    transform: none;
+  }
+}
+.gold-hero-visual {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .gold-hero-visual {
+    margin-top: 1.5rem;
+  }
+}

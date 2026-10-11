@@ -1,0 +1,28 @@
+import Navbar from '../components/Navbar'
+import SectionTransition from '../components/SectionTransition'
+import HeroSection from '../components/HeroSection'
+import GoldMarquee from '../components/GoldMarquee'
+import GoldSellingSteps from '../components/GoldSellingSteps'
+import GoldValueCalculator from '../components/GoldValueCalculator'
+import WhyGoldSuree from '../components/WhyGoldSuree'
+import ContactSection from '../components/ContactSection'
+import Footer from '../components/Footer'
+
+export default function Home() {
+  return (
+    <main>
+      <Navbar />
+      <HeroSection />
+      <GoldMarquee />
+      <GoldSellingSteps />
+      <SectionTransition from="#f8f5ef" to="#eee7db" />
+      <GoldValueCalculator />
+      <SectionTransition from="#eee7db" to="#292117" />
+      <WhyGoldSuree />
+      <SectionTransition from="#292117" to="#f8f5ef" />
+      <ContactSection />
+      <SectionTransition from="#f8f5ef" to="#211a12" />
+      <Footer />
+    </main>
+  )
+}
