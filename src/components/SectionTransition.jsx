@@ -6,13 +6,13 @@ export default function SectionTransition({
   return (
     <div
       aria-hidden="true"
-      className="relative z-10 -mt-px w-full overflow-hidden"
+      className="relative z-10 -mt-px w-full overflow-hidden leading-[0]"
       style={{ backgroundColor: from }}
     >
       <svg
         viewBox="0 0 1440 100"
         preserveAspectRatio="none"
-        className="block h-[45px] w-full sm:h-[65px] lg:h-[85px]"
+        className="block h-[45px] w-full align-bottom sm:h-[65px] lg:h-[85px]"
         xmlns="http://www.w3.org/2000/svg"
       >
         {/* Inverted organic curve */}
