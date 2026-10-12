@@ -8,192 +8,119 @@ import './GoldJewelleryScene.css'
 const GOLD = '#d9a83e'
 const PALE_GOLD = '#ffe7a5'
 
-
-function OrnateRing({ position, scale = 1, speed = 0.5 }) {
+function FloatingRing({ position, scale = 1, speed = 1, gemstone = false }) {
   const ref = useRef(null)
 
   useFrame(({ clock }, delta) => {
     if (!ref.current) return
+
+    const t = clock.elapsedTime * speed
+
     ref.current.position.y =
-      position[1] + Math.sin(clock.elapsedTime * speed) * 0.06
-    ref.current.rotation.y += delta * 0.08
+      position[1] + Math.sin(t) * 0.075
+
+    ref.current.rotation.y += delta * 0.13
+    ref.current.rotation.x = Math.sin(t * 0.45) * 0.09
   })
 
   return (
     <group ref={ref} position={position} scale={scale}>
-      {/* Thick polished gold band */}
-      <mesh rotation={[0.85, 0.1, 0.3]}>
-        <torusGeometry args={[0.68, 0.13, 32, 128]} />
+      <mesh rotation={[0.9, 0.15, 0.3]}>
+        <torusGeometry args={[0.66, 0.105, 24, 112]} />
         <meshPhysicalMaterial
-          color="#d99b25"
+          color={GOLD}
           metalness={1}
-          roughness={0.16}
+          roughness={0.19}
+          clearcoat={1}
+          clearcoatRoughness={0.1}
+        />
+      </mesh>
+
+      {gemstone && (
+        <group position={[0.04, 0.62, 0.02]}>
+          <mesh>
+            <octahedronGeometry args={[0.17, 0]} />
+            <meshPhysicalMaterial
+              color="#fff8e7"
+              metalness={0.15}
+              roughness={0.07}
+              clearcoat={1}
+            />
+          </mesh>
+
+          {[0, 1, 2, 3].map((i) => (
+            <mesh
+              key={i}
+              position={[
+                Math.cos((i * Math.PI) / 2) * 0.15,
+                -0.1,
+                Math.sin((i * Math.PI) / 2) * 0.15,
+              ]}
+            >
+              <sphereGeometry args={[0.025, 10, 10]} />
+              <meshStandardMaterial
+                color={PALE_GOLD}
+                metalness={1}
+                roughness={0.2}
+              />
+            </mesh>
+          ))}
+        </group>
+      )}
+    </group>
+  )
+}
+
+function FloatingBangle({ position, scale = 1, speed = 1 }) {
+  const ref = useRef(null)
+
+  useFrame(({ clock }, delta) => {
+    if (!ref.current) return
+
+    ref.current.position.y =
+      position[1] + Math.sin(clock.elapsedTime * speed + 1.4) * 0.08
+
+    ref.current.rotation.z += delta * 0.09
+  })
+
+  return (
+    <group ref={ref} position={position} scale={scale}>
+      <mesh rotation={[1.05, 0.25, 0.5]}>
+        <torusGeometry args={[0.65, 0.075, 24, 112]} />
+        <meshPhysicalMaterial
+          color="#bd8529"
+          metalness={1}
+          roughness={0.22}
           clearcoat={1}
         />
       </mesh>
 
-      {/* Raised decorative border */}
-      {[0.55, 0.81].map((radius, i) => (
-        <mesh key={i} rotation={[0.85, 0.1, 0.3]}>
-          <torusGeometry args={[radius, 0.025, 12, 128]} />
-          <meshStandardMaterial
-            color="#fff0ad"
-            metalness={1}
-            roughness={0.2}
-          />
-        </mesh>
-      ))}
-
-      {/* Repeating raised floral-style gold details */}
-      {Array.from({ length: 24 }, (_, i) => {
-        const angle = (i / 24) * Math.PI * 2
+      {/* Decorative gold detailing */}
+      {Array.from({ length: 18 }, (_, i) => {
+        const angle = (i / 18) * Math.PI * 2
 
         return (
-          <group
+          <mesh
             key={i}
             position={[
-              Math.cos(angle) * 0.68,
-              Math.sin(angle) * 0.68,
+              Math.cos(angle) * 0.65,
+              Math.sin(angle) * 0.65,
               0,
             ]}
-            rotation={[0, 0, angle]}
+            scale={0.045}
           >
-            <mesh scale={[0.045, 0.075, 0.025]}>
-              <sphereGeometry args={[1, 16, 12]} />
-              <meshPhysicalMaterial
-                color="#ffe3a0"
-                metalness={1}
-                roughness={0.2}
-              />
-            </mesh>
-          </group>
-        )
-      })}
-
-      {/* Diamond setting */}
-      <group position={[0, 0.72, 0.08]}>
-        <mesh>
-          <cylinderGeometry args={[0.12, 0.17, 0.12, 8]} />
-          <meshStandardMaterial
-            color="#bd8529"
-            metalness={1}
-            roughness={0.2}
-          />
-        </mesh>
-
-        <mesh position={[0, 0.12, 0]}>
-          <octahedronGeometry args={[0.17, 1]} />
-          <meshPhysicalMaterial
-            color="#ffffff"
-            metalness={0.05}
-            roughness={0.025}
-            transmission={0.15}
-            thickness={0.5}
-            clearcoat={1}
-          />
-        </mesh>
-
-        {/* Small stones around the centre */}
-        {Array.from({ length: 8 }, (_, i) => {
-          const angle = (i / 8) * Math.PI * 2
-          return (
-            <mesh
-              key={i}
-              position={[
-                Math.cos(angle) * 0.19,
-                0.08,
-                Math.sin(angle) * 0.19,
-              ]}
-            >
-              <octahedronGeometry args={[0.045, 0]} />
-              <meshPhysicalMaterial
-                color="#fffaf0"
-                metalness={0.05}
-                roughness={0.04}
-                clearcoat={1}
-              />
-            </mesh>
-          )
-        })}
-      </group>
-    </group>
-  )
-}
-
-function OrnateKada({ position, scale = 1, speed = 0.4 }) {
-  const ref = useRef(null)
-
-  useFrame(({ clock }, delta) => {
-    if (!ref.current) return
-    ref.current.position.y =
-      position[1] + Math.sin(clock.elapsedTime * speed + 1) * 0.05
-    ref.current.rotation.z += delta * 0.035
-  })
-
-  return (
-    <group ref={ref} position={position} scale={scale}>
-      {/* Multiple raised bands make the kada look substantial */}
-      {[-0.12, 0, 0.12].map((offset, i) => (
-        <mesh
-          key={i}
-          rotation={[1.05, 0.2, 0.35]}
-        >
-          <torusGeometry
-            args={[0.63 + Math.abs(offset) * 0.1, 0.07, 24, 128]}
-          />
-          <meshPhysicalMaterial
-            color={i === 1 ? '#f2c65c' : '#b8791d'}
-            metalness={1}
-            roughness={0.19}
-            clearcoat={1}
-          />
-        </mesh>
-      ))}
-
-      {/* Detailed repeating ornament around the outer band */}
-      {Array.from({ length: 36 }, (_, i) => {
-        const angle = (i / 36) * Math.PI * 2
-
-        return (
-          <group
-            key={i}
-            position={[
-              Math.cos(angle) * 0.64,
-              Math.sin(angle) * 0.64,
-              0,
-            ]}
-          >
-            <mesh rotation={[0, 0, angle]}>
-              <sphereGeometry args={[0.038, 12, 10]} />
-              <meshStandardMaterial
-                color="#ffe3a0"
-                metalness={1}
-                roughness={0.2}
-              />
-            </mesh>
-
-            <mesh
-              position={[
-                Math.cos(angle) * 0.045,
-                Math.sin(angle) * 0.045,
-                0.025,
-              ]}
-              scale={[0.025, 0.055, 0.02]}
-            >
-              <octahedronGeometry args={[1, 0]} />
-              <meshStandardMaterial
-                color="#d49a35"
-                metalness={1}
-                roughness={0.22}
-              />
-            </mesh>
-          </group>
+            <sphereGeometry args={[1, 12, 12]} />
+            <meshStandardMaterial
+              color={PALE_GOLD}
+              metalness={1}
+              roughness={0.23}
+            />
+          </mesh>
         )
       })}
     </group>
   )
 }
-
 
 function FloatingPendant({ position, scale = 1 }) {
   const ref = useRef(null)
