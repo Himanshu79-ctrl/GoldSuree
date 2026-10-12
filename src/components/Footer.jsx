@@ -140,19 +140,41 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col gap-4 py-6 text-[11px] text-[#a99a84] sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} GoldSuree. All rights reserved.
-          </p>
+        
+{/* Bottom bar */}
+<div className="flex flex-col gap-4 py-6 text-[11px] text-[#a99a84] sm:flex-row sm:items-center sm:justify-between">
+  <p>
+    © {new Date().getFullYear()} GoldSuree. All rights reserved.
+  </p>
 
-          <a
-            href="#home"
-            className="inline-flex items-center gap-2 transition-colors duration-300 hover:text-[#e4c48d]"
-          >
-            Back to top
-            <span aria-hidden="true">↑</span>
-          </a>
-        </div>
+  <nav
+    aria-label="Legal navigation"
+    className="flex flex-wrap items-center gap-x-5 gap-y-3"
+  >
+    <a
+      href="/terms-and-conditions"
+      className="transition-colors duration-300 hover:text-[#e4c48d]"
+    >
+      Terms & Conditions
+    </a>
+
+    <a
+      href="/privacy-policy"
+      className="transition-colors duration-300 hover:text-[#e4c48d]"
+    >
+      Privacy Policy
+    </a>
+
+    <a
+      href="#home"
+      className="inline-flex items-center gap-2 transition-colors duration-300 hover:text-[#e4c48d]"
+    >
+      Back to top
+      <span aria-hidden="true">↑</span>
+    </a>
+  </nav>
+</div>
+
       </div>
     </footer>
   )
