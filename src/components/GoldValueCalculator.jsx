@@ -100,7 +100,7 @@ export default function GoldValueCalculator() {
         style={reduceMotion ? undefined : { y: sceneY }}
         className="absolute inset-x-0 -inset-y-12 z-0"
       >
-        <GoldScene />
+        {/* <GoldScene /> */}
       </motion.div>
 
       {/* Soft veil keeps the intro text readable over the 3D layer */}
