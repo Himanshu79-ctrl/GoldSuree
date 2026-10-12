@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import products from '../data/products'
 import ProductCard from './ProductCard'
 import './ProductGrid.css'
+import GoldScene from './GoldScene'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -72,6 +73,7 @@ export default function ProductGrid() {
       ref={sectionRef}
       className="product-section scroll-mt-24 px-5 py-20 sm:px-8 sm:py-24 lg:px-16 lg:py-28"
     >
+     
       <div className="mx-auto max-w-[1440px]">
         <div className="product-grid-heading mb-9 flex flex-col justify-between gap-6 sm:mb-12 md:flex-row md:items-end">
           <div>
@@ -81,7 +83,7 @@ export default function ProductGrid() {
                 The GoldSuree Edit
               </p>
             </div>
-
+ 
             <h2 className="font-editorial text-4xl tracking-[-0.04em] text-[#292117] sm:text-5xl lg:text-6xl">
               Signature Jewellery
             </h2>
