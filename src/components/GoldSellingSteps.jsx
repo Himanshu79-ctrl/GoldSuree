@@ -7,28 +7,28 @@ const steps = [
     number: '01',
     title: 'Purity Testing',
     description:
-      'Understand your gold purity through a transparent testing process before valuation.',
+      'Have your gold purity assessed so you can understand how it affects the valuation estimate.',
     icon: ShieldCheck,
   },
   {
     number: '02',
     title: 'Accurate Weighing',
     description:
-      'Weigh your gold to establish the weight used in the valuation estimate.',
+      'Verify the gold weight used to calculate your valuation, including any applicable weight adjustments.',
     icon: Scale,
   },
   {
     number: '03',
     title: 'Transparent Valuation',
     description:
-      'Estimate your gold value using its weight, purity and the applicable gold rate.',
+      'Understand how gold purity, eligible gold weight and the applicable gold rate influence the estimated value.',
     icon: Calculator,
   },
   {
     number: '04',
     title: 'Your Decision',
     description:
-      'Review the valuation and decide whether you want to proceed with the sale.',
+      'Review the valuation, ask questions and decide whether you want to proceed with the sale.',
     icon: Wallet,
   },
 ]
@@ -65,8 +65,7 @@ export default function GoldSellingSteps() {
           </h2>
 
           <p className="mt-5 max-w-xl text-sm leading-7 text-[#786e60]">
-            From purity testing to valuation, understand each step
-            before making your decision.
+            From purity testing and weight verification to valuation, understand how your gold is assessed before deciding whether to sell.
           </p>
         </motion.div>
 

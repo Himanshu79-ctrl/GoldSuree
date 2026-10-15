@@ -56,9 +56,7 @@ export default function HeroSection() {
           />
 
           <motion.p {...reveal(0.25)} className="gs-hero-description">
-            Ready to part with old jewellery? Understand how purity,
-            weight and the applicable gold rate shape its estimated
-            value before you make your decision.
+            Ready to sell old, broken or unwanted gold jewellery? Understand how purity, eligible gold weight and the applicable gold rate influence its estimated value before deciding whether to sell.
           </motion.p>
 
           <motion.div {...reveal(0.32)} className="gs-hero-actions">

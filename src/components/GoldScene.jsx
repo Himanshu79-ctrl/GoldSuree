@@ -52,10 +52,10 @@ function drawCoinFace(ctx, s) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.font = `bold ${s * 0.26}px Georgia, serif`;
-  ctx.fillText("Au", c, c - s * 0.03);
+  ctx.fillText("GoldSuree", c, c - s * 0.03);
   ctx.font = `${s * 0.07}px Georgia, serif`;
-  ctx.fillText("FINE GOLD", c, c - s * 0.22);
-  ctx.fillText("999.9", c, c + s * 0.17);
+  ctx.fillText("GoldSuree", c, c - s * 0.22);
+  ctx.fillText("GoldSuree", c, c + s * 0.17);
 }
 
 // Reeded coin edge

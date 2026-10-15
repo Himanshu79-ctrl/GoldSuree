@@ -5,11 +5,14 @@ import Home from "./pages/Home";
 import { CartProvider } from "./context/CartContext";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import GoldScene from "./components/GoldScene";
 
 export default function App() {
   return (
     <BrowserRouter>
       <CartProvider>
+        <div className="site-wrapper"> 
+           <GoldScene className="gold-background" />
         <Routes>
           <Route path="/" element={<Home />} />
 
@@ -22,7 +25,13 @@ export default function App() {
             path="/privacy-policy"
             element={<PrivacyPolicy />}
           />
+
+          <Route
+            path="/gold-scene"
+            element={<GoldScene />}
+          />
         </Routes>
+        </div>
       </CartProvider>
     </BrowserRouter>
   );
