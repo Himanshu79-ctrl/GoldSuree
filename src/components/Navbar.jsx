@@ -1,5 +1,5 @@
 
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, ArrowUpRight } from 'lucide-react'
@@ -22,20 +22,16 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const location = useLocation()
+  const navigate = useNavigate()
+
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40)
-    }
+    const handleScroll = () => setScrolled(window.scrollY > 40)
 
     handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
 
-    window.addEventListener('scroll', handleScroll, {
-      passive: true,
-    })
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   useEffect(() => {
@@ -45,9 +41,7 @@ export default function Navbar() {
     document.body.style.overflow = 'hidden'
 
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setMenuOpen(false)
-      }
+      if (event.key === 'Escape') setMenuOpen(false)
     }
 
     window.addEventListener('keydown', handleKeyDown)
@@ -58,14 +52,39 @@ export default function Navbar() {
     }
   }, [menuOpen])
 
+  // Close the menu if the route changes.
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
+
   function closeMenu() {
     setMenuOpen(false)
   }
 
+  function handleSectionClick(event, href) {
+    event.preventDefault()
+    closeMenu()
+
+    const scrollToSection = () => {
+      const target = document.querySelector(href)
+
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+
+    if (location.pathname !== '/') {
+      navigate('/')
+      window.setTimeout(scrollToSection, 150)
+    } else {
+      scrollToSection()
+    }
+  }
+
   function renderNavLink(link, index, mobile = false) {
-    const className = mobile
-      ? 'block border-b border-[#b99a63]/20 py-5 font-editorial text-xl text-[#33281e] transition-colors hover:text-[#9b773e]'
-      : 'group relative whitespace-nowrap py-2 text-[9px] font-medium uppercase tracking-[0.13em] text-[#51483d] transition-colors hover:text-[#9b773e] xl:text-[10px]'
+    const linkClass = mobile
+      ? 'block w-full border-b border-[#b99a63]/20 py-5 font-editorial text-xl text-[#33281e] transition-colors hover:text-[#9b773e]'
+      : 'group relative block whitespace-nowrap py-2 text-[9px] font-medium uppercase tracking-[0.09em] text-[#51483d] transition-colors hover:text-[#9b773e] 2xl:text-[10px] 2xl:tracking-[0.12em]'
 
     const content = (
       <>
@@ -76,20 +95,20 @@ export default function Navbar() {
       </>
     )
 
+    const animationProps = {
+      initial: mobile ? { opacity: 0, x: -12 } : { opacity: 0, y: -6 },
+      animate: { opacity: 1, x: 0, y: 0 },
+      transition: { delay: index * 0.04, duration: 0.25 },
+    }
+
     if (link.type === 'page') {
       return (
         <motion.div
           key={link.label}
-          initial={mobile ? { opacity: 0, x: -12 } : { opacity: 0, y: -8 }}
-          animate={{ opacity: 1, x: 0, y: 0 }}
-          transition={{ delay: index * 0.06, duration: 0.4 }}
-          className={mobile ? 'w-full' : ''}
+          {...animationProps}
+          className={mobile ? 'w-full' : 'shrink-0'}
         >
-          <Link
-            to={link.href}
-            onClick={closeMenu}
-            className={className}
-          >
+          <Link to={link.href} onClick={closeMenu} className={linkClass}>
             {content}
           </Link>
         </motion.div>
@@ -99,12 +118,10 @@ export default function Navbar() {
     return (
       <motion.a
         key={link.label}
+        {...animationProps}
         href={link.href}
-        initial={mobile ? { opacity: 0, x: -12 } : { opacity: 0, y: -8 }}
-        animate={{ opacity: 1, x: 0, y: 0 }}
-        transition={{ delay: index * 0.06, duration: 0.4 }}
-        onClick={closeMenu}
-        className={className}
+        onClick={(event) => handleSectionClick(event, link.href)}
+        className={linkClass}
       >
         {content}
       </motion.a>
@@ -122,12 +139,12 @@ export default function Navbar() {
         </span>
       </div>
 
-      {/* Main navigation */}
+      {/* Main navbar */}
       <motion.header
         animate={{
           backgroundColor: scrolled
-            ? 'rgba(248,245,239,0.97)'
-            : 'rgba(248,245,239,0)',
+            ? 'rgba(248,245,239,0.98)'
+            : 'rgba(248,245,239,0.94)',
           boxShadow: scrolled
             ? '0 4px 24px rgba(32,26,20,0.06)'
             : '0 0px 0px rgba(32,26,20,0)',
@@ -135,36 +152,38 @@ export default function Navbar() {
         transition={{ duration: 0.3 }}
         className="fixed left-0 right-0 top-8 z-50 border-b border-[#b99a63]/20 backdrop-blur-md"
       >
-        <div className="relative mx-auto flex h-[68px] max-w-[1600px] items-center justify-between px-3 sm:h-[76px] sm:px-8 lg:h-[76px] lg:px-14">
+        <div className="mx-auto grid h-[68px] max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center px-3 sm:h-[76px] sm:px-6 lg:px-10 2xl:px-14">
 
-          {/* Mobile menu button */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center text-[#3b3023] transition-colors hover:text-[#9b7847] lg:hidden"
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-navigation"
-          >
-            {menuOpen ? <X size={21} /> : <Menu size={21} />}
-          </button>
+          {/* Hamburger: mobile and tablet */}
+          <div className="flex items-center justify-start min-[1200px]:hidden">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              className="flex h-10 w-10 items-center justify-center text-[#3b3023] hover:text-[#9b7847]"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-navigation"
+            >
+              {menuOpen ? <X size={21} /> : <Menu size={21} />}
+            </button>
+          </div>
 
-          {/* Desktop links - original layout */}
+          {/* Desktop links: one horizontal row */}
           <nav
             aria-label="Main navigation"
-            className="hidden items-center gap-5 lg:flex xl:gap-7"
+            className="hidden min-w-0 items-center justify-start gap-3 min-[1200px]:flex 2xl:gap-5"
           >
             {navLinks.map((link, index) =>
               renderNavLink(link, index)
             )}
           </nav>
 
-          {/* Center logo */}
+          {/* Centered logo */}
           <Link
-            to="/#home"
+            to="/"
             onClick={closeMenu}
             aria-label="GoldSuree home"
-            className="absolute left-1/2 -translate-x-1/2 text-center"
+            className="col-start-2 row-start-1 text-center"
           >
             <span className="block whitespace-nowrap font-editorial text-[22px] font-medium tracking-[0.02em] text-[#D4AF37] sm:text-[31px]">
               GoldSuree
@@ -174,18 +193,18 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Contact Us - original desktop sizing */}
-          <div className="ml-auto shrink-0">
+          {/* Contact button on the right */}
+          <div className="col-start-3 row-start-1 flex justify-end">
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contact GoldSuree on WhatsApp"
-              className="group inline-flex h-9 items-center justify-center gap-1 border border-[#a8874f] bg-[#e6d2ad] px-2 text-[8px] font-semibold uppercase tracking-[0.06em] text-[#302519] shadow-sm transition-all duration-300 hover:border-[#84602e] hover:bg-[#84602e] hover:text-white hover:shadow-md sm:h-10 sm:gap-2 sm:px-5 sm:text-[10px] sm:tracking-[0.16em]"
+              className="group inline-flex h-9 items-center justify-center gap-1 border border-[#a8874f] bg-[#e6d2ad] px-2 text-[8px] font-semibold uppercase tracking-[0.04em] text-[#302519] shadow-sm transition-all duration-300 hover:border-[#84602e] hover:bg-[#84602e] hover:text-white sm:h-10 sm:gap-2 sm:px-4 sm:text-[10px] sm:tracking-[0.12em] xl:px-5"
             >
               <span>Contact Us</span>
               <ArrowUpRight
-                size={15}
+                size={14}
                 strokeWidth={1.5}
                 className="shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
               />
@@ -194,7 +213,7 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/* Mobile navigation overlay */}
+      {/* Mobile and tablet slide-out menu */}
       <AnimatePresence>
         {menuOpen && (
           <>
@@ -205,7 +224,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeMenu}
-              className="fixed inset-0 z-40 bg-black/35 lg:hidden"
+              className="fixed inset-0 z-[65] bg-black/35 min-[1200px]:hidden"
             />
 
             <motion.nav
@@ -214,13 +233,10 @@ export default function Navbar() {
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{
-                duration: 0.3,
-                ease: 'easeInOut',
-              }}
-              className="fixed bottom-0 left-0 top-[100px] z-50 w-[82%] max-w-sm overflow-y-auto overscroll-contain bg-[#f8f5ef] px-6 py-7 shadow-2xl sm:top-[108px] sm:px-7 sm:py-8 lg:hidden"
+              transition={{ duration: 0.28, ease: 'easeInOut' }}
+              className="fixed bottom-0 left-0 top-[100px] z-[70] w-[82%] max-w-sm overflow-y-auto overscroll-contain bg-[#f8f5ef] px-6 py-7 shadow-2xl sm:top-[108px] sm:px-7 sm:py-8 min-[1200px]:hidden"
             >
-              <p className="mb-7 text-[10px] uppercase tracking-[0.25em] text-[#9b773e]">
+              <p className="mb-5 text-[10px] uppercase tracking-[0.25em] text-[#9b773e]">
                 Explore GoldSuree
               </p>
 
@@ -230,13 +246,12 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* WhatsApp contact in mobile menu */}
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={closeMenu}
-                className="mt-8 flex items-center justify-between gap-3 bg-[#302519] px-4 py-4 text-xs uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#84602e] sm:px-5 sm:tracking-[0.14em]"
+                className="mt-8 flex items-center justify-between gap-3 bg-[#302519] px-4 py-4 text-xs uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#84602e] sm:px-5"
               >
                 <span>Contact Us on WhatsApp</span>
                 <ArrowUpRight size={16} className="shrink-0" />
