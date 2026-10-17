@@ -1,5 +1,4 @@
-
-import { Suspense, useMemo, useRef } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useReducedMotion } from 'framer-motion'
 import { MathUtils } from 'three'
@@ -402,9 +401,43 @@ function Scene({ reducedMotion }) {
 export default function GoldJewelleryScene() {
   const prefersReducedMotion = useReducedMotion()
   const reducedMotion = Boolean(prefersReducedMotion)
+  const sceneRef = useRef(null)
+  const [isVisible, setIsVisible] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)')
+
+    const updateDevice = () => {
+      setIsMobile(mediaQuery.matches)
+    }
+
+    updateDevice()
+    mediaQuery.addEventListener('change', updateDevice)
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateDevice)
+    }
+  }, [])
+
+  useEffect(() => {
+    const element = sceneRef.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+      },
+      { threshold: 0 }
+    )
+
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [])
   return (
     <div
+      ref={sceneRef}
       className="gold-jewellery-scene"
       role="img"
       aria-label="Animated three-dimensional gold jewellery with floating rings, gemstones and a marble display pedestal"
@@ -413,8 +446,8 @@ export default function GoldJewelleryScene() {
 
       <Canvas
         camera={{ position: [0, 0, 6.4], fov: 42 }}
-        dpr={[1, 1.5]}
-        frameloop={reducedMotion ? 'demand' : 'always'}
+        dpr={isMobile ? [1, 1.1] : [1, 1.5]}
+        frameloop={reducedMotion? 'demand': isVisible? 'always': 'never'}
         gl={{
           alpha: true,
           antialias: true,

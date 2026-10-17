@@ -1,7 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { Calculator, RotateCcw, Scale, ShieldCheck } from 'lucide-react'
-import GoldScene from './GoldScene'
 
 const PURITY_OPTIONS = [
   { label: '24K', karat: 24, purity: '99.9%' },

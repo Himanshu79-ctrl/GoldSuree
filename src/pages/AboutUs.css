@@ -1,0 +1,157 @@
+
+.about-page {
+  background: #f8f5ef;
+  color: #292117;
+}
+
+.about-hero {
+  padding: 75px 8% 65px;
+  text-align: center;
+  background: radial-gradient(
+    ellipse at top,
+    rgba(226, 189, 120, 0.16),
+    transparent 65%
+  );
+}
+
+.about-eyebrow,
+.about-content-label {
+  color: #a47a35;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.about-hero h1 {
+  margin: 16px 0;
+  font-size: clamp(36px, 5vw, 52px);
+  font-weight: 500;
+  letter-spacing: -1.5px;
+}
+
+.about-hero > p {
+  max-width: 520px;
+  margin: 0 auto;
+  color: #71685b;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 0.65fr 1.5fr;
+  gap: 55px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 65px 7% 75px;
+  border-top: 1px solid rgba(41, 33, 23, 0.09);
+}
+
+.about-content-label {
+  padding-top: 8px;
+}
+
+.about-content-main h2 {
+  margin: 0 0 18px;
+  font-size: clamp(25px, 3vw, 34px);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.7px;
+}
+
+.about-content-main p {
+  margin: 0 0 16px;
+  color: #70675b;
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.about-content-divider {
+  height: 1px;
+  margin: 32px 0;
+  background: rgba(41, 33, 23, 0.12);
+}
+
+.about-location {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 966px;
+  margin: 0 auto 70px;
+  padding: 25px 28px;
+  border: 1px solid rgba(41, 33, 23, 0.12);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.about-location > svg {
+  flex-shrink: 0;
+  color: #a47a35;
+}
+
+.about-location-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.about-location-info h3 {
+  margin: 0 0 7px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.about-location-info p {
+  margin: 0;
+  color: #70675b;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.about-location > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  color: #926a2e;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.about-location > a:hover {
+  color: #292117;
+}
+
+@media (max-width: 650px) {
+  .about-hero {
+    padding: 55px 6% 45px;
+  }
+
+  .about-hero h1 {
+    letter-spacing: -1px;
+  }
+
+  .about-content {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 45px 6% 50px;
+  }
+
+  .about-content-main h2 {
+    font-size: 28px;
+  }
+
+  .about-location {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 0 5% 45px;
+    padding: 20px;
+  }
+
+  .about-location-info {
+    flex-basis: calc(100% - 40px);
+  }
+
+  .about-location > a {
+    margin-left: 35px;
+  }
+}

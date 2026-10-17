@@ -1,4 +1,4 @@
-
+import { Link, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, ArrowUpRight } from 'lucide-react'
@@ -10,7 +10,7 @@ const navLinks = [
   { label: 'How It Works', href: '#how-it-works' },
   { label: 'Gold Calculator', href: '#gold-calculator' },
   { label: 'Why GoldSuree', href: '#why-goldsuree' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'About Us', href: '/about-us', type: 'page' },
 ]
 
 export default function Navbar() {

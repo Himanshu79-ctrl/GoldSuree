@@ -1,4 +1,5 @@
 
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import {
   ArrowDown,
@@ -8,8 +9,12 @@ import {
   Star,
   CircleCheck,
 } from 'lucide-react'
-import GoldJewelleryScene from './GoldJewelleryScene'
 import './HeroSection.css'
+
+const GoldJewelleryScene = lazy(
+  () => import('./GoldJewelleryScene.jsx')
+)
+
 
 const trustItems = [
   { icon: Gem, title: '100% Transparent', sub: 'Process' },
@@ -19,6 +24,31 @@ const trustItems = [
 
 export default function HeroSection() {
   const reduceMotion = useReducedMotion()
+  const [sceneReady, setSceneReady] = useState(false)
+
+  useEffect(() => {
+    let idleId
+    let timerId
+
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(
+        () => setSceneReady(true),
+        { timeout: 1200 }
+      )
+    } else {
+      timerId = window.setTimeout(
+        () => setSceneReady(true),
+        300
+      )
+    }
+
+    return () => {
+      if (idleId !== undefined) {
+        window.cancelIdleCallback(idleId)
+      }
+      window.clearTimeout(timerId)
+    }
+  }, [])
 
   const reveal = (delay = 0) => ({
     initial: reduceMotion ? false : { opacity: 0, y: 22 },
@@ -105,9 +135,15 @@ export default function HeroSection() {
           <div className="gs-silk gs-silk-top" aria-hidden="true" />
           <div className="gs-silk gs-silk-bottom" aria-hidden="true" />
 
-          <div className="gs-jewellery-stage">
-            <GoldJewelleryScene />
-          </div>
+          
+        <div className="gs-jewellery-stage">
+          {sceneReady && (
+            <Suspense fallback={null}>
+              <GoldJewelleryScene />
+            </Suspense>
+          )}
+        </div>
+
 
           {/* Process card stays away from the bottom caption */}
           <motion.aside

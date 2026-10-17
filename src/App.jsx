@@ -1,38 +1,35 @@
 
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Home from "./pages/Home";
-import { CartProvider } from "./context/CartContext";
-import TermsAndConditions from "./pages/TermsAndConditions";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import GoldScene from "./components/GoldScene";
+const Home = lazy(() => import("./pages/Home"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
+const TermsAndConditions = lazy(
+  () => import("./pages/TermsAndConditions")
+);
+const PrivacyPolicy = lazy(
+  () => import("./pages/PrivacyPolicy")
+);
 
 export default function App() {
   return (
     <BrowserRouter>
-      <CartProvider>
-        <div className="site-wrapper"> 
-           <GoldScene className="gold-background" />
-        <Routes>
-          <Route path="/" element={<Home />} />
-
-          <Route
-            path="/terms-and-conditions"
-            element={<TermsAndConditions />}
-          />
-
-          <Route
-            path="/privacy-policy"
-            element={<PrivacyPolicy />}
-          />
-
-          <Route
-            path="/gold-scene"
-            element={<GoldScene />}
-          />
-        </Routes>
-        </div>
-      </CartProvider>
+      <div className="site-wrapper">
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route
+              path="/terms-and-conditions"
+              element={<TermsAndConditions />}
+            />
+            <Route
+              path="/privacy-policy"
+              element={<PrivacyPolicy />}
+            />
+          </Routes>
+        </Suspense>
+      </div>
     </BrowserRouter>
   );
 }
