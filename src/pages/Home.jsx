@@ -3,7 +3,7 @@ import SectionTransition from '../components/SectionTransition'
 import HeroSection from '../components/HeroSection'
 import GoldMarquee from '../components/GoldMarquee'
 import GoldSellingSteps from '../components/GoldSellingSteps'
-import GoldValueCalculator from '../components/GoldValueCalculator'
+import AboutGoldSuree from '../components/AboutGoldSuree'
 import WhyGoldSuree from '../components/WhyGoldSuree'
 import FAQSection from '../components/FAQSection'
 import ContactSection from '../components/ContactSection'
@@ -16,8 +16,8 @@ export default function Home() {
       <HeroSection />
       <GoldMarquee />
       <GoldSellingSteps />
-      <SectionTransition from="#f8f5ef" to="#eee7db" />
-      <GoldValueCalculator />
+      {/* <SectionTransition from="#f8f5ef" to="#f8f5ef" /> */}
+      <AboutGoldSuree />
       <SectionTransition from="#eee7db" to="#292117" />
       <WhyGoldSuree />
       <SectionTransition from="#292117" to="#f8f5ef" />

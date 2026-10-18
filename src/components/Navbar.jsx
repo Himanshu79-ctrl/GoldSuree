@@ -1,9 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { Menu, X, ArrowUpRight, Calculator , Phone} from 'lucide-react'
+import { Menu, X, ArrowUpRight, Phone} from 'lucide-react'
 
-const WHATSAPP_NUMBER = '7004164598'
+const WHATSAPP_NUMBER = '8981298596'
 const LOGO_PATH = '/images/goldsuree-logo.jpeg'
 const ANNOUNCEMENT_HEIGHT = 32 // px, matches h-8 on the announcement bar
 
@@ -14,14 +14,13 @@ const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
 const NAV_LINKS = [
   { label: 'Home', href: '#home', id: 'home' },
   { label: 'How It Works', href: '#how-it-works', id: 'how-it-works' },
-  { label: 'Gold Calculator', href: '#gold-calculator', id: 'gold-calculator', icon: Calculator },
   { label: 'Why GoldSuree', href: '#why-goldsuree', id: 'why-goldsuree' },
   { label: 'About Us', href: '/about-us', type: 'page' },
 ]
 
 // Split navigation: 3 links left of the logo, 2 links + CTA right of it.
-const LEFT_LINKS = NAV_LINKS.slice(0, 3)
-const RIGHT_LINKS = NAV_LINKS.slice(3)
+const LEFT_LINKS = NAV_LINKS.slice(0, 2)
+const RIGHT_LINKS = NAV_LINKS.slice(2)
 const SECTION_IDS = NAV_LINKS.filter((link) => link.id).map((link) => link.id)
 
 const focusRing =

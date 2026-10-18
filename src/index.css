@@ -102,19 +102,32 @@ a {
   align-items: center;
 }
 
+
 .gold-marquee__item {
   display: inline-flex;
   align-items: center;
   gap: 17px;
   padding: 0 25px;
   white-space: nowrap;
-  color: #ead8b6;
+
+  background: linear-gradient(
+    to bottom,
+    #E8BD50 0%,
+    #C99525 50%,
+    #80520C 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 17px;
   font-style: italic;
   font-weight: 400;
   letter-spacing: 0.035em;
 }
+
 
 .gold-marquee__star {
   color: #c5a16b;

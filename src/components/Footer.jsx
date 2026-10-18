@@ -44,17 +44,6 @@ export default function Footer() {
               A clearer way to understand the value of your old gold.
               Know the process before making your decision.
             </p>
-
-            <a
-              href="#gold-calculator"
-              className="group mt-6 inline-flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-[#d9bd91] transition-colors duration-300 hover:text-white"
-            >
-              Estimate your gold value
-              <ArrowUpRight
-                size={15}
-                className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-              />
-            </a>
           </div>
 
           {/* Explore */}
