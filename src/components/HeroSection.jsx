@@ -167,15 +167,6 @@ export default function HeroSection() {
             <h2>Every piece has a story.</h2>
             <div className="gs-caption-rule" />
           </div>
-
-          {/* <div className="gs-scroll-mark">
-            <span>01 / 03</span>
-            <div />
-            <span>Scroll</span>
-            <ArrowDown size={17} />
-          </div> */}
-
-          <span className="gs-art-index" aria-hidden="true">GS / 01</span>
         </motion.div>
       </div>
 

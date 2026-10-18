@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { Menu, X, ArrowUpRight, Calculator } from 'lucide-react'
+import { Menu, X, ArrowUpRight, Calculator , Phone} from 'lucide-react'
 
 const WHATSAPP_NUMBER = '918981298596'
 const LOGO_PATH = '/images/goldsuree-logo.jpeg'
@@ -241,13 +241,33 @@ export default function Navbar() {
   return (
     <>
       {/* Announcement bar (scrolls away with the page) */}
-      <div className="relative z-[60] flex h-8 items-center justify-center bg-[#302519] px-2 text-center text-[9px] tracking-[0.12em] text-[#e6d0a5] sm:px-3 sm:text-[10px] sm:tracking-[0.2em]">
-        <span className="whitespace-nowrap">
+      <div className="relative z-[60] grid h-8 grid-cols-[1fr_auto_1fr] items-center bg-[#302519] px-3 text-[#e6d0a5] sm:px-6 min-[1200px]:px-10">
+        
+        {/* LEFT: Phone contact */}
+        <a
+          href="tel:+918981298596"
+          aria-label="Call GoldSuree at 8981298596"
+          className="inline-flex w-fit items-center gap-1.5 justify-self-start whitespace-nowrap rounded-sm text-[10px] font-medium tracking-normal transition-colors hover:text-[#fff0b5] sm:gap-2 sm:text-[11px]"
+        >
+          <Phone
+            size={12}
+            strokeWidth={2}
+            aria-hidden="true"
+          />
+          <span>8981298596</span>
+        </a>
+        
+        {/* CENTER: Existing announcement — unchanged */}
+        <span className="whitespace-nowrap text-center text-[8px] tracking-[0.08em] sm:text-[10px] sm:tracking-[0.2em]">
           LUXURY IN EVERY DETAIL
-          <span className="mx-2 text-[#9b7847]" aria-hidden="true">|</span>
+          <span className="mx-1.5 text-[#9b7847] sm:mx-2" aria-hidden="true">|</span>
           DISCOVER GOLDSUREE
         </span>
+        
+        {/* RIGHT: Balancing space */}
+        <span aria-hidden="true" />
       </div>
+
 
       {/* Main navbar */}
       <header
@@ -310,13 +330,15 @@ export default function Navbar() {
             </span>
 
             <span className="flex flex-col items-center">
-              <span
-                className={`block whitespace-nowrap font-editorial font-medium leading-none tracking-[0.02em] text-[#a97f12] transition-[font-size] duration-300 text-[22px] sm:text-[28px] ${
-                  scrolled ? 'min-[1200px]:text-[26px]' : 'min-[1200px]:text-[34px]'
-                }`}
-              >
-                GoldSuree
-              </span>
+              
+            <span
+              className={`block whitespace-nowrap font-editorial font-medium leading-none tracking-[0.02em] bg-gradient-to-b from-[#E8BD50] via-[#C99525] to-[#80520C] bg-clip-text text-transparent transition-[font-size] duration-300 text-[22px] sm:text-[28px] ${
+                scrolled ? 'min-[1200px]:text-[26px]' : 'min-[1200px]:text-[34px]'
+              }`}
+            >
+              GoldSuree
+            </span>
+
               {/* <span
                 className={`mt-1 block whitespace-nowrap pl-[0.3em] text-[8px] font-semibold uppercase tracking-[0.3em] text-[#6b5a3a] sm:text-[9px] min-[1200px]:text-[10px] min-[1200px]:tracking-[0.36em] ${
                   scrolled ? 'min-[1200px]:hidden' : ''
@@ -336,12 +358,13 @@ export default function Navbar() {
               {RIGHT_LINKS.map(renderDesktopLink)}
             </nav>
 
+            
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contact GoldSuree on WhatsApp"
-              className={`group inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-[#b58b4b] pl-3.5 pr-3.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white shadow-sm transition-colors hover:bg-[#6f4c0e] sm:pl-5 sm:pr-1.5 sm:text-[11px] sm:tracking-[0.12em] min-[1200px]:pl-6 2xl:text-xs ${focusRing} ${
+              className={`group inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#C99525] bg-gradient-to-b from-[#E8BD50] via-[#C99525] to-[#80520C] pl-3.5 pr-3.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#fffaf1] shadow-[0_7px_18px_#8b65241c] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#E8BD50] hover:from-[#F0CC70] hover:via-[#B88620] hover:to-[#684008] hover:shadow-[0_10px_24px_#8b652442] sm:pl-5 sm:pr-1.5 sm:text-[11px] sm:tracking-[0.12em] min-[1200px]:pl-6 2xl:text-xs ${focusRing} ${
                 scrolled ? '' : 'min-[1200px]:h-12'
               }`}
             >
@@ -356,6 +379,7 @@ export default function Navbar() {
                 />
               </span>
             </a>
+
           </div>
         </div>
       </header>
@@ -440,16 +464,23 @@ export default function Navbar() {
 
               {/* CTA pinned to the bottom, respects the iPhone home-indicator area */}
               <div className="shrink-0 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4">
+                
                 <a
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={closeMenu}
-                  className={`flex min-h-[52px] items-center justify-center gap-3 rounded-full bg-[#8f6414] px-5 text-xs font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#6f4c0e] ${focusRing}`}
+                  className={`group flex min-h-[52px] items-center justify-center gap-3 rounded-full border border-[#C99525] bg-gradient-to-b from-[#E8BD50] via-[#C99525] to-[#80520C] px-5 text-xs font-semibold uppercase tracking-[0.12em] text-[#fffaf1] shadow-[0_7px_18px_#8b65241c] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#E8BD50] hover:from-[#F0CC70] hover:via-[#B88620] hover:to-[#684008] hover:shadow-[0_10px_24px_#8b652442] ${focusRing}`}
                 >
                   Contact Us on WhatsApp
-                  <ArrowUpRight size={16} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
+                  <ArrowUpRight
+                    size={16}
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                    className="shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  />
                 </a>
+
               </div>
             </motion.aside>
           </>

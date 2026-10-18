@@ -71,12 +71,22 @@
   line-height: 1.04;
 }
 
+
 .gs-hero-title span {
   display: block;
   margin-top: 7px;
-  color: #a77c40;
+  background: linear-gradient(
+    to bottom,
+    #E8BD50 0%,
+    #C99525 50%,
+    #80520C 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-style: normal;
 }
+
 
 .gs-title-underline {
   width: 165px;
@@ -99,6 +109,7 @@
   gap: 14px;
   margin-top: 26px;
 }
+
 
 .gs-btn-primary,
 .gs-btn-secondary {
@@ -126,14 +137,26 @@
 
 .gs-btn-primary {
   color: #fffaf1;
-  background: linear-gradient(110deg, #b58b4b, #94703a);
+  background: linear-gradient(
+    to bottom,
+    #E8BD50 0%,
+    #C99525 50%,
+    #80520C 100%
+  );
+  border-color: #C99525;
   box-shadow: 0 7px 18px #8b65241c;
 }
 
 .gs-btn-primary:hover {
   transform: translateY(-2px);
-  background: #7e5a2a;
-  box-shadow: 0 10px 24px #8b65242b;
+  background: linear-gradient(
+    to bottom,
+    #F0CC70 0%,
+    #B88620 55%,
+    #684008 100%
+  );
+  border-color: #E8BD50;
+  box-shadow: 0 10px 24px #8b652442;
 }
 
 .gs-btn-secondary {
@@ -146,6 +169,7 @@
   border-color: #a77a38;
   background: #fffaf1;
 }
+
 
 .gs-hero-assurance {
   display: flex;

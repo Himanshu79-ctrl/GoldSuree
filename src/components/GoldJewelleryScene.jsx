@@ -1,683 +1,556 @@
-
-import {
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
-
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useReducedMotion } from 'framer-motion'
 import {
   CanvasTexture,
+  TextureLoader,
   MathUtils,
   SRGBColorSpace,
+  LinearMipmapLinearFilter,
+  LinearFilter,
 } from 'three'
-
 import './GoldJewelleryScene.css'
 
-const GOLD = '#d9a83e'
-const PALE_GOLD = '#ffe7a5'
+const GOLD = '#e9b72f'
+const PALE_GOLD = '#fff0b5'
 
-// --------------------------------------------------
-// GoldSuree coin artwork
-// The same artwork is used on BOTH sides of every coin.
-// --------------------------------------------------
+// Asli logo image. null = code se bana logo.
+const LOGO_URL = '/goldsuree-coin.png'
 
-function createGoldSureeCoinTexture() {
-  const canvas = document.createElement('canvas')
-  canvas.width = 1024
-  canvas.height = 1024
+const CAMERA_Z = 5.4
+const CAMERA_FOV = 42
 
-  const ctx = canvas.getContext('2d')
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+const textureCache = new Map()
 
-  if (!ctx) {
-    throw new Error('Unable to create GoldSuree coin texture')
-  }
-
-  // Rich metallic gold base
-  const goldGradient = ctx.createRadialGradient(
-    355, 285, 30,
-    512, 512, 700
-  )
-
-  goldGradient.addColorStop(0, '#fff5c9')
-  goldGradient.addColorStop(0.19, '#fce49a')
-  goldGradient.addColorStop(0.4, '#e7b943')
-  goldGradient.addColorStop(0.67, '#c18a28')
-  goldGradient.addColorStop(0.84, '#f2d071')
-  goldGradient.addColorStop(1, '#966019')
-
-  ctx.fillStyle = goldGradient
-  ctx.fillRect(0, 0, 1024, 1024)
-
-  // Soft metallic highlights
-  const highlight = ctx.createRadialGradient(
-    330, 245, 10,
-    420, 360, 520
-  )
-
-  highlight.addColorStop(0, 'rgba(255,255,230,0.38)')
-  highlight.addColorStop(0.5, 'rgba(255,237,173,0.10)')
-  highlight.addColorStop(1, 'rgba(120,70,12,0.16)')
-
-  ctx.fillStyle = highlight
-  ctx.fillRect(0, 0, 1024, 1024)
-
-  // Concentric engraved borders
-  const borders = [
-    { radius: 478, width: 12, color: '#8c5b19' },
-    { radius: 460, width: 7, color: '#ffe8a0' },
-    { radius: 430, width: 5, color: '#94651e' },
-    { radius: 406, width: 3, color: 'rgba(255,246,207,0.8)' },
-  ]
-
-  borders.forEach(({ radius, width, color }) => {
-    ctx.beginPath()
-    ctx.arc(512, 512, radius, 0, Math.PI * 2)
-    ctx.strokeStyle = color
-    ctx.lineWidth = width
-    ctx.stroke()
-  })
-
-  // Decorative dots around the inner border
-  for (let i = 0; i < 48; i += 1) {
-    const angle = (i / 48) * Math.PI * 2
-    const x = 512 + Math.cos(angle) * 385
-    const y = 512 + Math.sin(angle) * 385
-
-    ctx.beginPath()
-    ctx.arc(x, y, 5, 0, Math.PI * 2)
-    ctx.fillStyle = '#fff0b8'
-    ctx.fill()
-  }
-
-  // Brand typography with subtle engraved shadow
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-
-  ctx.font = 'bold 112px Georgia, "Times New Roman", serif'
-
-  ctx.fillStyle = '#fff0b0'
-  ctx.fillText('GoldSuree', 512, 457)
-
-  ctx.fillStyle = '#704414'
-  ctx.fillText('GoldSuree', 512, 450)
-
-  // Decorative divider
-  ctx.beginPath()
-  ctx.moveTo(305, 528)
-  ctx.lineTo(719, 528)
-  ctx.strokeStyle = '#98651c'
-  ctx.lineWidth = 5
-  ctx.stroke()
-
-  ctx.beginPath()
-  ctx.moveTo(345, 536)
-  ctx.lineTo(679, 536)
-  ctx.strokeStyle = 'rgba(255,239,181,0.85)'
-  ctx.lineWidth = 2
-  ctx.stroke()
-
-  // Brand tagline
-  ctx.font = 'bold 34px Arial, sans-serif'
-  ctx.fillStyle = '#fff0b4'
-  ctx.fillText('WE BUY GOLD', 512, 596)
-
-  ctx.fillStyle = '#80551c'
-  ctx.fillText('WE BUY GOLD', 512, 591)
-
-  // Small ornamental stars
-  ;[255, 769].forEach((x) => {
-    ctx.save()
-    ctx.translate(x, 510)
-    ctx.rotate(Math.PI / 4)
-
-    ctx.fillStyle = '#fff0b5'
-    ctx.fillRect(-9, -9, 18, 18)
-
-    ctx.restore()
-  })
-
-  const texture = new CanvasTexture(canvas)
+function finishTexture(texture, maxAnisotropy) {
   texture.colorSpace = SRGBColorSpace
-  texture.anisotropy = 4
+  texture.anisotropy = maxAnisotropy
+  texture.generateMipmaps = true
+  texture.minFilter = LinearMipmapLinearFilter
+  texture.magFilter = LinearFilter
   texture.needsUpdate = true
-
   return texture
 }
 
-// --------------------------------------------------
-// Floating branded 3D gold coin
-// Coin cylinder axis is aligned with the Z axis.
-// Both faces have the same readable brand artwork.
-// --------------------------------------------------
+function loadLogoTexture(url, maxAnisotropy) {
+  return new Promise((resolve, reject) => {
+    new TextureLoader().load(
+      url,
+      (tex) => resolve(finishTexture(tex, maxAnisotropy)),
+      undefined,
+      reject
+    )
+  })
+}
 
+function whenIdle(fn) {
+  if (typeof window.requestIdleCallback === 'function') {
+    const id = window.requestIdleCallback(fn, { timeout: 300 })
+    return () => window.cancelIdleCallback(id)
+  }
+  const id = window.setTimeout(fn, 50)
+  return () => window.clearTimeout(id)
+}
+
+function getIsMobile() {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(max-width: 768px)').matches
+}
+
+/* ------------------------------------------------------------------ */
+/*  Fallback coin texture (sirf tab banta hai jab image load na ho)    */
+/* ------------------------------------------------------------------ */
+function drawStack(ctx, S, x, baseY, w, count, thick = 15) {
+  const rx = (w / 2) * S
+  const ry = rx * 0.3
+  const th = thick * S
+  const px = x * S
+  const by = baseY * S
+
+  for (let i = 0; i < count; i++) {
+    const cy = by - i * th
+
+    const side = ctx.createLinearGradient(px - rx, 0, px + rx, 0)
+    side.addColorStop(0, '#8a5a0a')
+    side.addColorStop(0.2, '#e0a82a')
+    side.addColorStop(0.45, '#ffe27a')
+    side.addColorStop(0.75, '#d99a1c')
+    side.addColorStop(1, '#7a4c06')
+
+    ctx.beginPath()
+    ctx.ellipse(px, cy, rx, ry, 0, 0, Math.PI * 2)
+    ctx.fillStyle = side
+    ctx.fill()
+
+    ctx.fillStyle = side
+    ctx.fillRect(px - rx, cy - th, rx * 2, th)
+
+    ctx.beginPath()
+    ctx.ellipse(px, cy - th, rx, ry, 0, 0, Math.PI * 2)
+    ctx.fillStyle = side
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.ellipse(px, cy, rx, ry, 0, 0, Math.PI)
+    ctx.strokeStyle = 'rgba(90,50,5,0.55)'
+    ctx.lineWidth = 1.6 * S
+    ctx.stroke()
+  }
+
+  const topY = by - (count - 1) * th - th
+  const top = ctx.createRadialGradient(px - rx * 0.3, topY - ry * 0.3, 2 * S, px, topY, rx)
+  top.addColorStop(0, '#fff6b8')
+  top.addColorStop(0.5, '#f5c93e')
+  top.addColorStop(1, '#c58a14')
+  ctx.beginPath()
+  ctx.ellipse(px, topY, rx, ry, 0, 0, Math.PI * 2)
+  ctx.fillStyle = top
+  ctx.fill()
+  ctx.strokeStyle = '#a56f0e'
+  ctx.lineWidth = 2 * S
+  ctx.stroke()
+
+  ctx.beginPath()
+  ctx.ellipse(px, topY, rx * 0.78, ry * 0.78, 0, 0, Math.PI * 2)
+  ctx.strokeStyle = 'rgba(165,111,14,0.6)'
+  ctx.lineWidth = 1.5 * S
+  ctx.stroke()
+}
+
+function createCoinTexture(SIZE, maxAnisotropy) {
+  const S = SIZE / 1024
+  const canvas = document.createElement('canvas')
+  canvas.width = SIZE
+  canvas.height = SIZE
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Unable to create GoldSuree coin texture')
+
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = 'high'
+
+  const cx = 512 * S
+  const cy = 512 * S
+
+  const bg = ctx.createRadialGradient(cx, cy * 0.85, 40 * S, cx, cy, 520 * S)
+  bg.addColorStop(0, '#fffdf4')
+  bg.addColorStop(0.7, '#fcf3d9')
+  bg.addColorStop(1, '#f6e6b8')
+  ctx.fillStyle = bg
+  ctx.fillRect(0, 0, SIZE, SIZE)
+
+  const rim = ctx.createLinearGradient(0, 0, SIZE, SIZE)
+  rim.addColorStop(0, '#f7d96a')
+  rim.addColorStop(0.5, '#d9a21f')
+  rim.addColorStop(1, '#f2c94c')
+  ctx.beginPath()
+  ctx.arc(cx, cy, 492 * S, 0, Math.PI * 2)
+  ctx.strokeStyle = rim
+  ctx.lineWidth = 22 * S
+  ctx.stroke()
+
+  ctx.beginPath()
+  ctx.arc(cx, cy, 474 * S, 0, Math.PI * 2)
+  ctx.strokeStyle = 'rgba(176,120,20,0.55)'
+  ctx.lineWidth = 3 * S
+  ctx.stroke()
+
+  const shadow = ctx.createRadialGradient(cx, 470 * S, 10 * S, cx, 470 * S, 260 * S)
+  shadow.addColorStop(0, 'rgba(190,140,40,0.28)')
+  shadow.addColorStop(1, 'rgba(190,140,40,0)')
+  ctx.fillStyle = shadow
+  ctx.fillRect(0, 300 * S, SIZE, 300 * S)
+
+  drawStack(ctx, S, 512, 355, 140, 7)
+  drawStack(ctx, S, 395, 410, 150, 5)
+  drawStack(ctx, S, 655, 420, 150, 6)
+  drawStack(ctx, S, 330, 465, 135, 4)
+  drawStack(ctx, S, 505, 490, 165, 3)
+
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'alphabetic'
+  let fontSize = 170
+  ctx.font = `bold ${fontSize * S}px Georgia, "Times New Roman", serif`
+  const targetWidth = 760 * S
+  const measured = ctx.measureText('GoldSuree').width
+  fontSize = (fontSize * targetWidth) / measured
+  ctx.font = `bold ${fontSize * S}px Georgia, "Times New Roman", serif`
+
+  const textY = 700 * S
+  const textGold = ctx.createLinearGradient(0, textY - fontSize * S * 0.75, 0, textY + 10 * S)
+  textGold.addColorStop(0, '#fff2a0')
+  textGold.addColorStop(0.35, '#f1c230')
+  textGold.addColorStop(0.7, '#c98a10')
+  textGold.addColorStop(1, '#8f5a06')
+
+  ctx.lineJoin = 'round'
+  ctx.lineWidth = 3 * S
+  ctx.strokeStyle = '#8a5806'
+  ctx.strokeText('GoldSuree', cx, textY)
+  ctx.fillStyle = textGold
+  ctx.fillText('GoldSuree', cx, textY)
+
+  ctx.font = `bold ${50 * S}px Arial, Helvetica, sans-serif`
+  if ('letterSpacing' in ctx) ctx.letterSpacing = `${7 * S}px`
+  ctx.fillStyle = '#5b3a0c'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('WE BUY GOLD', cx + 3.5 * S, 780 * S)
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
+
+  const dashL = ctx.createLinearGradient(215 * S, 0, 305 * S, 0)
+  dashL.addColorStop(0, 'rgba(201,138,16,0)')
+  dashL.addColorStop(1, '#c98a10')
+  ctx.strokeStyle = dashL
+  ctx.lineWidth = 4 * S
+  ctx.beginPath()
+  ctx.moveTo(215 * S, 780 * S)
+  ctx.lineTo(305 * S, 780 * S)
+  ctx.stroke()
+
+  const dashR = ctx.createLinearGradient(719 * S, 0, 809 * S, 0)
+  dashR.addColorStop(0, '#c98a10')
+  dashR.addColorStop(1, 'rgba(201,138,16,0)')
+  ctx.strokeStyle = dashR
+  ctx.beginPath()
+  ctx.moveTo(719 * S, 780 * S)
+  ctx.lineTo(809 * S, 780 * S)
+  ctx.stroke()
+
+  return finishTexture(new CanvasTexture(canvas), maxAnisotropy)
+}
+
+/* ------------------------------------------------------------------ */
+/*  Floating coin (full 360° spin, dono side logo)                     */
+/* ------------------------------------------------------------------ */
 function FloatingCoin({
+  texture,
   position,
   scale = 1,
   speed = 1,
-  tilt = [0.15, 0, -0.12],
+  tilt = [0.12, 0, -0.1],
   reducedMotion = false,
+  segments = 96,
 }) {
   const ref = useRef(null)
-
-  const texture = useMemo(
-    () => createGoldSureeCoinTexture(),
-    []
-  )
-
-  useEffect(() => {
-    return () => {
-      texture.dispose()
-    }
-  }, [texture])
 
   useFrame(({ clock }, delta) => {
     if (!ref.current || reducedMotion) return
-
-    const time = clock.elapsedTime * speed
-
-    // Gentle floating motion
-    ref.current.position.y =
-      position[1] + Math.sin(time) * 0.055
-
-    // Rotate around the coin's vertical viewing axis
-    ref.current.rotation.y += delta * 0.3 * speed
-
-    // Subtle natural tilt
-    ref.current.rotation.x =
-      tilt[0] + Math.sin(time * 0.5) * 0.045
-
-    ref.current.rotation.z =
-      tilt[2] + Math.sin(time * 0.4) * 0.035
+    const dt = Math.min(delta, 0.05)
+    const t = clock.elapsedTime * speed
+    ref.current.position.y = position[1] + Math.sin(t) * 0.055
+    ref.current.rotation.y += dt * 0.6 * speed
+    ref.current.rotation.x = tilt[0] + Math.sin(t * 0.5) * 0.035
+    ref.current.rotation.z = tilt[2] + Math.sin(t * 0.4) * 0.025
   })
 
   return (
-    <group
-      ref={ref}
-      position={position}
-      rotation={tilt}
-      scale={scale}
-    >
-      {/* Solid coin body: thickness runs along Z */}
-      <mesh
-        rotation={[Math.PI / 2, 0, 0]}
-        castShadow
-        receiveShadow
-      >
-        <cylinderGeometry args={[0.62, 0.62, 0.13, 128]} />
-
-        <meshPhysicalMaterial
-          color={GOLD}
-          metalness={1}
-          roughness={0.23}
-          clearcoat={1}
-          clearcoatRoughness={0.12}
-        />
+    <group ref={ref} position={position} rotation={tilt} scale={scale}>
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.62, 0.62, 0.14, segments]} />
+        <meshStandardMaterial color={GOLD} metalness={0.9} roughness={0.22} />
       </mesh>
 
-      {/* FRONT face: GoldSuree branding */}
-      <mesh position={[0, 0, 0.066]} castShadow>
-        <circleGeometry args={[0.575, 128]} />
-
-        <meshPhysicalMaterial
-          map={texture}
-          metalness={0.68}
-          roughness={0.25}
-          clearcoat={1}
-          clearcoatRoughness={0.12}
-          side={2}
-        />
+      <mesh position={[0, 0, 0.08]}>
+        <circleGeometry args={[0.6, segments]} />
+        <meshStandardMaterial map={texture} metalness={0.05} roughness={0.55} />
       </mesh>
 
-      {/* BACK face: same GoldSuree branding */}
-      <mesh
-        position={[0, 0, -0.066]}
-        rotation={[0, Math.PI, 0]}
-        castShadow
-      >
-        <circleGeometry args={[0.575, 128]} />
-
-        <meshPhysicalMaterial
-          map={texture}
-          metalness={0.68}
-          roughness={0.25}
-          clearcoat={1}
-          clearcoatRoughness={0.12}
-          side={2}
-        />
+      <mesh position={[0, 0, -0.08]} rotation={[0, Math.PI, 0]}>
+        <circleGeometry args={[0.6, segments]} />
+        <meshStandardMaterial map={texture} metalness={0.05} roughness={0.55} />
       </mesh>
 
-      {/* Raised metallic rim on the front */}
-      <mesh position={[0, 0, 0.055]}>
-        <torusGeometry args={[0.588, 0.022, 16, 128]} />
-
-        <meshPhysicalMaterial
-          color={PALE_GOLD}
-          metalness={1}
-          roughness={0.17}
-          clearcoat={1}
-        />
-      </mesh>
-
-      {/* Raised metallic rim on the reverse */}
-      <mesh
-        position={[0, 0, -0.055]}
-        rotation={[0, Math.PI, 0]}
-      >
-        <torusGeometry args={[0.588, 0.022, 16, 128]} />
-
-        <meshPhysicalMaterial
-          color={PALE_GOLD}
-          metalness={1}
-          roughness={0.17}
-          clearcoat={1}
-        />
-      </mesh>
-
-      {/* Fine engraved border on the front */}
-      <mesh position={[0, 0, 0.067]}>
-        <torusGeometry args={[0.535, 0.004, 8, 128]} />
-
-        <meshBasicMaterial
-          color="#fff0b5"
-          transparent
-          opacity={0.8}
-        />
-      </mesh>
-
-      {/* Fine engraved border on the reverse */}
-      <mesh
-        position={[0, 0, -0.067]}
-        rotation={[0, Math.PI, 0]}
-      >
-        <torusGeometry args={[0.535, 0.004, 8, 128]} />
-
-        <meshBasicMaterial
-          color="#fff0b5"
-          transparent
-          opacity={0.8}
-        />
-      </mesh>
-    </group>
-  )
-}
-
-// --------------------------------------------------
-// Decorative orbital rings around the coins
-// --------------------------------------------------
-
-function Orbit({
-  radius,
-  tube,
-  rotation,
-  speed = 0.04,
-  reducedMotion = false,
-}) {
-  const ref = useRef(null)
-
-  useFrame((_, delta) => {
-    if (ref.current && !reducedMotion) {
-      ref.current.rotation.z += delta * speed
-    }
-  })
-
-  return (
-    <mesh ref={ref} rotation={rotation}>
-      <torusGeometry args={[radius, tube, 8, 160]} />
-
-      <meshBasicMaterial
-        color="#bd8d45"
-        transparent
-        opacity={0.58}
-      />
-    </mesh>
-  )
-}
-
-// --------------------------------------------------
-// Marble display pedestal
-// --------------------------------------------------
-
-function GoldPedestal({ reducedMotion }) {
-  const ref = useRef(null)
-
-  useFrame(({ clock }) => {
-    if (!ref.current || reducedMotion) return
-
-    ref.current.position.y =
-      -1.65 + Math.sin(clock.elapsedTime * 0.55) * 0.012
-  })
-
-  return (
-    <group ref={ref} position={[0, -1.65, -0.55]}>
-      {/* Marble body */}
-      <mesh position={[0, -0.05, 0]} receiveShadow>
-        <cylinderGeometry args={[1.63, 1.78, 0.5, 96]} />
-
-        <meshPhysicalMaterial
-          color="#e9ddc7"
-          metalness={0.04}
-          roughness={0.31}
-          clearcoat={0.4}
-        />
-      </mesh>
-
-      {/* Gold trim */}
-      <mesh position={[0, 0.22, 0]}>
-        <torusGeometry args={[1.62, 0.045, 12, 128]} />
-
-        <meshPhysicalMaterial
-          color={GOLD}
-          metalness={1}
-          roughness={0.2}
-          clearcoat={1}
-        />
-      </mesh>
-
-      {/* Cream top surface */}
-      <mesh position={[0, 0.205, 0]}>
-        <cylinderGeometry args={[1.6, 1.6, 0.035, 96]} />
-
-        <meshStandardMaterial
-          color="#f8f0e2"
-          roughness={0.28}
-        />
-      </mesh>
-    </group>
-  )
-}
-
-// --------------------------------------------------
-// Subtle floating golden particles
-// --------------------------------------------------
-
-function GoldParticles({ reducedMotion }) {
-  const group = useRef(null)
-
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 18 }, (_, i) => ({
-        x: Math.sin(i * 12.989) * 1.8,
-        y: Math.cos(i * 7.123) * 1.8,
-        z: Math.sin(i * 4.21) * 0.45,
-        size: 0.012 + (i % 4) * 0.008,
-      })),
-    []
-  )
-
-  useFrame(({ clock }) => {
-    if (!group.current || reducedMotion) return
-
-    group.current.children.forEach((particle, i) => {
-      particle.position.y =
-        particles[i].y +
-        Math.sin(clock.elapsedTime * 0.5 + i) * 0.045
-    })
-  })
-
-  return (
-    <group ref={group}>
-      {particles.map((particle, i) => (
-        <mesh
-          key={i}
-          position={[particle.x, particle.y, particle.z]}
-        >
-          <sphereGeometry args={[particle.size, 10, 10]} />
-
-          <meshBasicMaterial
-            color={i % 3 === 0 ? '#fff0bd' : '#c8953d'}
-          />
+      {[0.06, -0.06].map((z) => (
+        <mesh key={z} position={[0, 0, z]}>
+          <torusGeometry args={[0.612, 0.024, 12, segments]} />
+          <meshStandardMaterial color={PALE_GOLD} metalness={1} roughness={0.18} />
         </mesh>
       ))}
     </group>
   )
 }
 
-// --------------------------------------------------
-// Coin arrangement and pointer-responsive movement
-// --------------------------------------------------
-
-function JewelleryCollection({ reducedMotion }) {
+/* ------------------------------------------------------------------ */
+/*  Orbit rings                                                        */
+/* ------------------------------------------------------------------ */
+function Orbit({ radius, tube, rotation, speed = 0.025, reducedMotion = false }) {
   const ref = useRef(null)
-
-  useFrame(({ pointer, clock }, delta) => {
-    if (!ref.current || reducedMotion) return
-
-    const targetX = -pointer.y * 0.09
-
-    const targetY =
-      pointer.x * 0.13 +
-      Math.sin(clock.elapsedTime * 0.25) * 0.025
-
-    ref.current.rotation.x = MathUtils.damp(
-      ref.current.rotation.x,
-      targetX,
-      3,
-      delta
-    )
-
-    ref.current.rotation.y = MathUtils.damp(
-      ref.current.rotation.y,
-      targetY,
-      3,
-      delta
-    )
+  useFrame((_, delta) => {
+    if (ref.current && !reducedMotion) ref.current.rotation.z += Math.min(delta, 0.05) * speed
   })
-
   return (
-    <group ref={ref}>
-      {/* Main hero coin */}
-      <FloatingCoin
-        position={[0, 0.18, 0.35]}
-        scale={0.95}
-        speed={0.7}
-        tilt={[0.12, 0, -0.1]}
-        reducedMotion={reducedMotion}
-      />
+    <mesh ref={ref} rotation={rotation}>
+      <torusGeometry args={[radius, tube, 8, 128]} />
+      <meshBasicMaterial color="#c99b4d" transparent opacity={0.42} />
+    </mesh>
+  )
+}
 
-      {/* Left coin */}
-      <FloatingCoin
-        position={[-1.03, 0.42, -0.3]}
-        scale={0.64}
-        speed={0.85}
-        tilt={[0.25, 0, 0.15]}
-        reducedMotion={reducedMotion}
-      />
-
-      {/* Upper-right coin */}
-      <FloatingCoin
-        position={[0.9, 0.76, -0.35]}
-        scale={0.56}
-        speed={0.9}
-        tilt={[-0.18, 0, -0.12]}
-        reducedMotion={reducedMotion}
-      />
-
-      {/* Lower-right coin */}
-      <FloatingCoin
-        position={[0.86, -0.65, 0.05]}
-        scale={0.48}
-        speed={0.65}
-        tilt={[0.2, 0, 0.18]}
-        reducedMotion={reducedMotion}
-      />
-
-      {/* Small background coin */}
-      <FloatingCoin
-        position={[-0.15, -0.85, -0.6]}
-        scale={0.38}
-        speed={0.75}
-        tilt={[-0.2, 0, 0.1]}
-        reducedMotion={reducedMotion}
-      />
+/* ------------------------------------------------------------------ */
+/*  Pedestal                                                           */
+/* ------------------------------------------------------------------ */
+function GoldPedestal({ reducedMotion }) {
+  const ref = useRef(null)
+  useFrame(({ clock }) => {
+    if (ref.current && !reducedMotion) {
+      ref.current.position.y = -1.65 + Math.sin(clock.elapsedTime * 0.55) * 0.01
+    }
+  })
+  return (
+    <group ref={ref} position={[0, -1.65, -0.55]}>
+      <mesh position={[0, -0.05, 0]}>
+        <cylinderGeometry args={[1.63, 1.78, 0.5, 72]} />
+        <meshStandardMaterial color="#eee2cc" metalness={0.06} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, 0.22, 0]}>
+        <torusGeometry args={[1.62, 0.04, 12, 96]} />
+        <meshStandardMaterial color={GOLD} metalness={1} roughness={0.2} />
+      </mesh>
+      <mesh position={[0, 0.205, 0]}>
+        <cylinderGeometry args={[1.6, 1.6, 0.035, 72]} />
+        <meshStandardMaterial color="#fbf3e5" roughness={0.27} />
+      </mesh>
     </group>
   )
 }
 
-// --------------------------------------------------
-// Scene lighting
-// --------------------------------------------------
+/* ------------------------------------------------------------------ */
+/*  Particles                                                          */
+/* ------------------------------------------------------------------ */
+function GoldParticles({ reducedMotion, count }) {
+  const group = useRef(null)
+  const particles = useMemo(
+    () =>
+      Array.from({ length: count }, (_, i) => ({
+        x: Math.sin(i * 12.989) * 1.8,
+        y: Math.cos(i * 7.123) * 1.7,
+        z: Math.sin(i * 4.21) * 0.35,
+        size: 0.009 + (i % 4) * 0.006,
+      })),
+    [count]
+  )
 
+  useFrame(({ clock }) => {
+    if (!group.current || reducedMotion) return
+    group.current.children.forEach((p, i) => {
+      if (particles[i]) {
+        p.position.y = particles[i].y + Math.sin(clock.elapsedTime * 0.5 + i) * 0.04
+      }
+    })
+  })
+
+  return (
+    <group ref={group}>
+      {particles.map((p, i) => (
+        <mesh key={i} position={[p.x, p.y, p.z]}>
+          <sphereGeometry args={[p.size, 8, 8]} />
+          <meshBasicMaterial color={i % 3 === 0 ? '#fff2c6' : '#d6a345'} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Coin collection                                                    */
+/*  Texture idle time mein load hoti hai, GPU pe pehle upload hoti hai */
+/* ------------------------------------------------------------------ */
+function JewelleryCollection({ reducedMotion, isMobile, onReady }) {
+  const ref = useRef(null)
+  const gl = useThree((s) => s.gl)
+  const [texture, setTexture] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const aniso = Math.min(isMobile ? 8 : 16, gl.capabilities.getMaxAnisotropy())
+    const size = isMobile ? 1536 : 2048
+    const key = `${LOGO_URL || 'canvas'}-${size}-${aniso}`
+
+    const finish = (tex) => {
+      if (cancelled) return
+      gl.initTexture(tex) // first frame mein stall nahi aayega
+      setTexture(tex)
+    }
+
+    if (textureCache.has(key)) {
+      finish(textureCache.get(key))
+      return () => {
+        cancelled = true
+      }
+    }
+
+    const cancelIdle = whenIdle(async () => {
+      let tex = null
+      if (LOGO_URL) {
+        try {
+          tex = await loadLogoTexture(LOGO_URL, aniso)
+        } catch (err) {
+          console.warn('Logo image load nahi hui, code wala logo use ho raha hai', err)
+        }
+      }
+      if (!tex) {
+        try {
+          tex = createCoinTexture(size, aniso)
+        } catch (err) {
+          console.error(err)
+          return
+        }
+      }
+      textureCache.set(key, tex)
+      finish(tex)
+    })
+
+    return () => {
+      cancelled = true
+      cancelIdle()
+    }
+  }, [gl, isMobile])
+
+  // Coins mount hone ke 2 frames baad fade-in (shader compile chhup jaye)
+  useEffect(() => {
+    if (!texture) return
+    let r2
+    const r1 = requestAnimationFrame(() => {
+      r2 = requestAnimationFrame(() => onReady?.())
+    })
+    return () => {
+      cancelAnimationFrame(r1)
+      cancelAnimationFrame(r2)
+    }
+  }, [texture, onReady])
+
+  useFrame(({ pointer, clock }, delta) => {
+    if (!ref.current || reducedMotion) return
+    const dt = Math.min(delta, 0.05)
+    ref.current.rotation.x = MathUtils.damp(ref.current.rotation.x, -pointer.y * 0.07, 3, dt)
+    ref.current.rotation.y = MathUtils.damp(
+      ref.current.rotation.y,
+      pointer.x * 0.1 + Math.sin(clock.elapsedTime * 0.25) * 0.02,
+      3,
+      dt
+    )
+  })
+
+  if (!texture) return null
+
+  const segments = isMobile ? 64 : 96
+
+  return (
+    <group ref={ref}>
+      <FloatingCoin segments={segments} texture={texture} position={[0, 0.25, 0.42]} scale={0.94} speed={0.65} tilt={[0.08, 0, -0.06]} reducedMotion={reducedMotion} />
+      <FloatingCoin segments={segments} texture={texture} position={[-1.02, 0.43, -0.28]} scale={0.61} speed={0.8} tilt={[0.2, 0, 0.12]} reducedMotion={reducedMotion} />
+      <FloatingCoin segments={segments} texture={texture} position={[0.98, 0.58, -0.32]} scale={0.56} speed={0.85} tilt={[-0.15, 0, -0.1]} reducedMotion={reducedMotion} />
+      <FloatingCoin segments={segments} texture={texture} position={[0.82, -0.62, -0.05]} scale={0.43} speed={0.62} tilt={[0.16, 0, 0.16]} reducedMotion={reducedMotion} />
+      <FloatingCoin segments={segments} texture={texture} position={[-0.32, -0.82, -0.52]} scale={0.34} speed={0.72} tilt={[-0.16, 0, 0.08]} reducedMotion={reducedMotion} />
+    </group>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Lights                                                             */
+/* ------------------------------------------------------------------ */
 function SceneLights() {
   return (
     <>
-      <ambientLight intensity={1.3} />
-
-      <directionalLight
-        position={[3, 5, 5]}
-        intensity={3}
-        color="#fff1ce"
-      />
-
-      <pointLight
-        position={[-3, 2, 3]}
-        intensity={18}
-        color="#f3c467"
-      />
-
-      <pointLight
-        position={[2, -1, 2]}
-        intensity={8}
-        color="#fff1c5"
-      />
-
-      <directionalLight
-        position={[0, 3, -3]}
-        intensity={2}
-        color="#d4a34c"
-      />
+      <ambientLight intensity={0.75} />
+      <directionalLight position={[2, 3, 6]} intensity={1.8} color="#fff4d6" />
+      <pointLight position={[-3, 2, 3]} intensity={5} color="#ffe0a0" />
+      <directionalLight position={[0, 3, -3]} intensity={1.2} color="#f2c96b" />
     </>
   )
 }
 
-// --------------------------------------------------
-// Complete 3D scene
-// --------------------------------------------------
+/* ------------------------------------------------------------------ */
+/*  ResponsiveRig: screen narrow ho toh poora scene chhota ho jata hai */
+/*  taaki coins, rings aur pedestal side se kate nahi                  */
+/* ------------------------------------------------------------------ */
+function ResponsiveRig({ children }) {
+  const size = useThree((s) => s.size)
+  const aspect = size.width / Math.max(size.height, 1)
+  const visibleWidth =
+    2 * Math.tan(MathUtils.degToRad(CAMERA_FOV / 2)) * CAMERA_Z * aspect
+  // Scene lagbhag 4.3 unit chauda hai (outer orbit ring + coins)
+  const scale = MathUtils.clamp(visibleWidth / 4.3, 0.5, 1)
+  return <group scale={scale}>{children}</group>
+}
 
-function Scene({ reducedMotion }) {
+function Scene({ reducedMotion, isMobile, onReady }) {
   return (
     <>
       <SceneLights />
-
-      <GoldPedestal reducedMotion={reducedMotion} />
-
-      <GoldParticles reducedMotion={reducedMotion} />
-
-      <Orbit
-        radius={1.65}
-        tube={0.006}
-        rotation={[0.9, 0.25, 0.4]}
-        speed={0.035}
-        reducedMotion={reducedMotion}
-      />
-
-      <Orbit
-        radius={1.95}
-        tube={0.004}
-        rotation={[0.3, 1.0, -0.45]}
-        speed={-0.025}
-        reducedMotion={reducedMotion}
-      />
-
-      <Orbit
-        radius={1.35}
-        tube={0.005}
-        rotation={[1.1, 0.5, 0.8]}
-        speed={0.02}
-        reducedMotion={reducedMotion}
-      />
-
-      <JewelleryCollection reducedMotion={reducedMotion} />
+      <ResponsiveRig>
+        <GoldPedestal reducedMotion={reducedMotion} />
+        <GoldParticles reducedMotion={reducedMotion} count={isMobile ? 10 : 16} />
+        <Orbit radius={1.65} tube={0.005} rotation={[0.9, 0.25, 0.4]} speed={0.025} reducedMotion={reducedMotion} />
+        <Orbit radius={1.95} tube={0.004} rotation={[0.3, 1, -0.45]} speed={-0.018} reducedMotion={reducedMotion} />
+        <JewelleryCollection reducedMotion={reducedMotion} isMobile={isMobile} onReady={onReady} />
+      </ResponsiveRig>
     </>
   )
 }
 
-// --------------------------------------------------
-// Main component
-// --------------------------------------------------
-
+/* ------------------------------------------------------------------ */
+/*  Main export                                                        */
+/* ------------------------------------------------------------------ */
 export default function GoldJewelleryScene() {
   const prefersReducedMotion = useReducedMotion()
   const reducedMotion = Boolean(prefersReducedMotion)
-
   const sceneRef = useRef(null)
-
   const [isVisible, setIsVisible] = useState(true)
-  const [isMobile, setIsMobile] = useState(false)
+  // Pehle render se hi sahi value, taaki texture/dpr baad mein dobara na badle
+  const [isMobile, setIsMobile] = useState(getIsMobile)
+  const [ready, setReady] = useState(false)
 
-  // Detect mobile viewport
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 768px)')
-
-    const updateDevice = () => {
-      setIsMobile(mediaQuery.matches)
-    }
-
-    updateDevice()
-
-    mediaQuery.addEventListener('change', updateDevice)
-
-    return () => {
-      mediaQuery.removeEventListener('change', updateDevice)
-    }
+    const media = window.matchMedia('(max-width: 768px)')
+    const update = () => setIsMobile(media.matches)
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
   }, [])
 
-  // Pause rendering when the scene is outside the viewport
   useEffect(() => {
     const element = sceneRef.current
-
     if (!element) return
-
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting)
-      },
+      ([entry]) => setIsVisible(entry.isIntersecting),
       { threshold: 0 }
     )
-
     observer.observe(element)
-
     return () => observer.disconnect()
   }, [])
+
+  const onReady = useMemo(() => () => setReady(true), [])
 
   return (
     <div
       ref={sceneRef}
       className="gold-jewellery-scene"
       role="img"
-      aria-label="Premium three-dimensional metallic gold coins with GoldSuree branding on both faces, floating above a cream marble pedestal"
+      aria-label="GoldSuree gold coins floating above a cream marble pedestal"
     >
-      <div
-        className="gold-scene-glow"
-        aria-hidden="true"
-      />
-
+      <div className="gold-scene-glow" aria-hidden="true" />
       <Canvas
-        camera={{ position: [0, 0, 6.4], fov: 42 }}
-        dpr={isMobile ? [1, 1.1] : [1, 1.5]}
-        frameloop={
-          reducedMotion
-            ? 'demand'
-            : isVisible
-              ? 'always'
-              : 'never'
-        }
+        style={{
+          opacity: ready ? 1 : 0,
+          transform: ready ? 'translateY(0)' : 'translateY(10px)',
+          transition: 'opacity 0.9s ease, transform 0.9s ease',
+          willChange: 'opacity, transform',
+          touchAction: 'pan-y', // phone pe canvas ke upar se page scroll ho sake
+        }}
+        camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
+        dpr={isMobile ? [1, 1.75] : [1, 2]}
+        frameloop={reducedMotion ? 'demand' : isVisible ? 'always' : 'never'}
         gl={{
           alpha: true,
-          antialias: !isMobile,
-          powerPreference: 'default',
+          antialias: true,
+          powerPreference: isMobile ? 'default' : 'high-performance',
         }}
-        fallback={
-          <div className="gold-scene-fallback">
-            GoldSuree — Your Gold. Your True Worth.
-          </div>
-        }
+        fallback={<div className="gold-scene-fallback">GoldSuree — Your Gold. Your True Worth.</div>}
       >
         <Suspense fallback={null}>
-          <Scene reducedMotion={reducedMotion} />
+          <Scene reducedMotion={reducedMotion} isMobile={isMobile} onReady={onReady} />
         </Suspense>
       </Canvas>
     </div>
