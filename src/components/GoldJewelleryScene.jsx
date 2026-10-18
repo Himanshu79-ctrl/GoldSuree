@@ -15,7 +15,7 @@ const GOLD = '#e9b72f'
 const PALE_GOLD = '#fff0b5'
 
 // Asli logo image. null = code se bana logo.
-const LOGO_URL = '/goldsuree-coin.jpeg'
+const LOGO_URL = '/images/goldsuree-coin.jpeg'
 
 const CAMERA_Z = 5.4
 const CAMERA_FOV = 42
