@@ -1,39 +1,152 @@
-
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, ArrowUpRight } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { Menu, X, ArrowUpRight, Calculator } from 'lucide-react'
 
 const WHATSAPP_NUMBER = '918981298596'
-
-const navLinks = [
-  { label: 'Home', href: '#home' },
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'Gold Calculator', href: '#gold-calculator' },
-  { label: 'Why GoldSuree', href: '#why-goldsuree' },
-  { label: 'About Us', href: '/about-us', type: 'page' },
-]
+const LOGO_PATH = '/images/goldsuree-logo.jpeg'
+const ANNOUNCEMENT_HEIGHT = 32 // px, matches h-8 on the announcement bar
 
 const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
   'Hello GoldSuree, I would like to enquire about old gold valuation.'
 )}`
 
+const NAV_LINKS = [
+  { label: 'Home', href: '#home', id: 'home' },
+  { label: 'How It Works', href: '#how-it-works', id: 'how-it-works' },
+  { label: 'Gold Calculator', href: '#gold-calculator', id: 'gold-calculator', icon: Calculator },
+  { label: 'Why GoldSuree', href: '#why-goldsuree', id: 'why-goldsuree' },
+  { label: 'About Us', href: '/about-us', type: 'page' },
+]
+
+// Split navigation: 3 links left of the logo, 2 links + CTA right of it.
+const LEFT_LINKS = NAV_LINKS.slice(0, 3)
+const RIGHT_LINKS = NAV_LINKS.slice(3)
+const SECTION_IDS = NAV_LINKS.filter((link) => link.id).map((link) => link.id)
+
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8f6414] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f8f5ef]'
+
+/* ------------------------------------------------------------------ */
+/* Single nav link (desktop pill or mobile row)                        */
+/* ------------------------------------------------------------------ */
+function NavItem({ link, active, mobile, onSectionClick, onPageClick }) {
+  const Icon = link.icon
+  const current = active ? (link.type === 'page' ? 'page' : 'location') : undefined
+
+  const desktopClass = `inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2.5 text-[11px] uppercase tracking-[0.1em] transition-colors 2xl:px-4 2xl:text-xs ${focusRing} ${
+    active
+      ? 'bg-[#f0e3bf] font-bold text-[#6f4c0e]'
+      : 'font-medium text-[#2b2418] hover:bg-[#a97f12]/[0.12]'
+  }`
+
+  const mobileClass = `flex min-h-[56px] w-full items-center justify-between gap-3 border-b border-[#b99a63]/25 py-4 font-editorial text-xl transition-colors ${focusRing} ${
+    active ? 'text-[#8f6414]' : 'text-[#33281e] hover:text-[#9b773e]'
+  }`
+
+  const className = mobile ? mobileClass : desktopClass
+
+  const content = mobile ? (
+    <>
+      <span className="flex items-center gap-3">
+        {Icon && <Icon size={18} strokeWidth={1.6} className="text-[#a97f12]" aria-hidden="true" />}
+        {link.label}
+      </span>
+      {active && <span className="h-2 w-2 rounded-full bg-[#a97f12]" aria-hidden="true" />}
+    </>
+  ) : (
+    <>
+      {Icon && <Icon size={15} strokeWidth={1.7} className="shrink-0 text-[#a97f12]" aria-hidden="true" />}
+      {link.label}
+    </>
+  )
+
+  if (link.type === 'page') {
+    return (
+      <Link to={link.href} onClick={onPageClick} aria-current={current} className={className}>
+        {content}
+      </Link>
+    )
+  }
+
+  return (
+    <a
+      href={link.href}
+      onClick={(event) => onSectionClick(event, link.href)}
+      aria-current={current}
+      className={className}
+    >
+      {content}
+    </a>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Navbar                                                              */
+/* ------------------------------------------------------------------ */
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [activeId, setActiveId] = useState('home')
 
   const location = useLocation()
   const navigate = useNavigate()
+  const reduceMotion = useReducedMotion()
 
+  const headerRef = useRef(null)
+  const hamburgerRef = useRef(null)
+  const closeButtonRef = useRef(null)
+  const pendingHash = useRef(null)
+  const wasOpen = useRef(false)
+
+  const isHome = location.pathname === '/'
+
+  /* Scroll: compact state + header follows the announcement bar as it scrolls away */
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40)
+    let ticking = false
 
-    handleScroll()
-    window.addEventListener('scroll', handleScroll, { passive: true })
+    const update = () => {
+      const y = window.scrollY
+      setScrolled(y > 40)
+      if (headerRef.current) {
+        headerRef.current.style.top = `${Math.max(0, ANNOUNCEMENT_HEIGHT - y)}px`
+      }
+      ticking = false
+    }
 
-    return () => window.removeEventListener('scroll', handleScroll)
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true
+        window.requestAnimationFrame(update)
+      }
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  /* Scroll spy: highlight the section currently in view on the home page */
+  useEffect(() => {
+    if (!isHome) return
+
+    const sections = SECTION_IDS.map((id) => document.getElementById(id)).filter(Boolean)
+    if (!sections.length) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveId(entry.target.id)
+        })
+      },
+      { rootMargin: '-35% 0px -55% 0px' }
+    )
+
+    sections.forEach((section) => observer.observe(section))
+    return () => observer.disconnect()
+  }, [isHome])
+
+  /* Mobile drawer: lock body scroll + Escape to close */
   useEffect(() => {
     if (!menuOpen) return
 
@@ -45,17 +158,56 @@ export default function Navbar() {
     }
 
     window.addEventListener('keydown', handleKeyDown)
-
     return () => {
       document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [menuOpen])
 
-  // Close the menu if the route changes.
+  /* Keyboard focus: into the drawer on open, back to the hamburger on close */
+  useEffect(() => {
+    if (menuOpen) {
+      wasOpen.current = true
+      closeButtonRef.current?.focus()
+    } else if (wasOpen.current) {
+      wasOpen.current = false
+      hamburgerRef.current?.focus()
+    }
+  }, [menuOpen])
+
+  /* Close the drawer on route change and when the viewport becomes desktop */
   useEffect(() => {
     setMenuOpen(false)
   }, [location.pathname])
+
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 1200px)')
+    const handleChange = (event) => {
+      if (event.matches) setMenuOpen(false)
+    }
+    query.addEventListener('change', handleChange)
+    return () => query.removeEventListener('change', handleChange)
+  }, [])
+
+  /* Scroll to a section after navigating back to "/" from another page */
+  useEffect(() => {
+    if (isHome && pendingHash.current) {
+      const hash = pendingHash.current
+      pendingHash.current = null
+      window.requestAnimationFrame(() => window.requestAnimationFrame(() => scrollToHash(hash)))
+    }
+  }, [isHome]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function scrollToHash(hash) {
+    const behavior = reduceMotion ? 'auto' : 'smooth'
+    const target = document.querySelector(hash)
+
+    if (target) {
+      target.scrollIntoView({ behavior, block: 'start' })
+    } else if (hash === '#home') {
+      window.scrollTo({ top: 0, behavior })
+    }
+  }
 
   function closeMenu() {
     setMenuOpen(false)
@@ -65,204 +217,241 @@ export default function Navbar() {
     event.preventDefault()
     closeMenu()
 
-    const scrollToSection = () => {
-      const target = document.querySelector(href)
-
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }
-
-    if (location.pathname !== '/') {
+    if (!isHome) {
+      pendingHash.current = href
       navigate('/')
-      window.setTimeout(scrollToSection, 150)
     } else {
-      scrollToSection()
+      scrollToHash(href)
     }
   }
 
-  function renderNavLink(link, index, mobile = false) {
-    const linkClass = mobile
-      ? 'block w-full border-b border-[#b99a63]/20 py-5 font-editorial text-xl text-[#33281e] transition-colors hover:text-[#9b773e]'
-      : 'group relative block whitespace-nowrap py-2 text-[9px] font-medium uppercase tracking-[0.09em] text-[#51483d] transition-colors hover:text-[#9b773e] 2xl:text-[10px] 2xl:tracking-[0.12em]'
+  const isActive = (link) =>
+    link.type === 'page' ? location.pathname === link.href : isHome && activeId === link.id
 
-    const content = (
-      <>
-        {link.label}
-        {!mobile && (
-          <span className="absolute bottom-0 left-0 h-px w-0 bg-[#a8874f] transition-all duration-300 group-hover:w-full" />
-        )}
-      </>
-    )
-
-    const animationProps = {
-      initial: mobile ? { opacity: 0, x: -12 } : { opacity: 0, y: -6 },
-      animate: { opacity: 1, x: 0, y: 0 },
-      transition: { delay: index * 0.04, duration: 0.25 },
-    }
-
-    if (link.type === 'page') {
-      return (
-        <motion.div
-          key={link.label}
-          {...animationProps}
-          className={mobile ? 'w-full' : 'shrink-0'}
-        >
-          <Link to={link.href} onClick={closeMenu} className={linkClass}>
-            {content}
-          </Link>
-        </motion.div>
-      )
-    }
-
-    return (
-      <motion.a
-        key={link.label}
-        {...animationProps}
-        href={link.href}
-        onClick={(event) => handleSectionClick(event, link.href)}
-        className={linkClass}
-      >
-        {content}
-      </motion.a>
-    )
-  }
+  const renderDesktopLink = (link) => (
+    <NavItem
+      key={link.label}
+      link={link}
+      active={isActive(link)}
+      onSectionClick={handleSectionClick}
+      onPageClick={closeMenu}
+    />
+  )
 
   return (
     <>
-      {/* Announcement bar */}
-      <div className="relative z-[60] flex h-8 items-center justify-center bg-[#201a14] px-2 text-center text-[8px] tracking-[0.12em] text-[#e6d0a5] sm:px-3 sm:text-[10px] sm:tracking-[0.2em]">
+      {/* Announcement bar (scrolls away with the page) */}
+      <div className="relative z-[60] flex h-8 items-center justify-center bg-[#302519] px-2 text-center text-[9px] tracking-[0.12em] text-[#e6d0a5] sm:px-3 sm:text-[10px] sm:tracking-[0.2em]">
         <span className="whitespace-nowrap">
           LUXURY IN EVERY DETAIL
-          <span className="mx-2 text-[#9b7847]">|</span>
+          <span className="mx-2 text-[#9b7847]" aria-hidden="true">|</span>
           DISCOVER GOLDSUREE
         </span>
       </div>
 
       {/* Main navbar */}
-      <motion.header
-        animate={{
-          backgroundColor: scrolled
-            ? 'rgba(248,245,239,0.98)'
-            : 'rgba(248,245,239,0.94)',
-          boxShadow: scrolled
-            ? '0 4px 24px rgba(32,26,20,0.06)'
-            : '0 0px 0px rgba(32,26,20,0)',
-        }}
-        transition={{ duration: 0.3 }}
-        className="fixed left-0 right-0 top-8 z-50 border-b border-[#b99a63]/20 backdrop-blur-md"
+      <header
+        ref={headerRef}
+        className={`fixed inset-x-0 top-8 z-50 border-b backdrop-blur-xl transition-[background-color,box-shadow,border-color] duration-300 ${
+          scrolled
+            ? 'border-[#a97f12]/25 bg-[#f8f5ef]/85 shadow-[0_8px_28px_rgba(111,76,14,0.10)]'
+            : 'border-[#b99a63]/20 bg-[#f8f5ef]/95'
+        }`}
       >
-        <div className="mx-auto grid h-[68px] max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center px-3 sm:h-[76px] sm:px-6 lg:px-10 2xl:px-14">
-
-          {/* Hamburger: mobile and tablet */}
-          <div className="flex items-center justify-start min-[1200px]:hidden">
+        <div
+          className={`mx-auto grid max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 transition-[height] duration-300 sm:gap-4 sm:px-6 min-[1200px]:gap-6 min-[1200px]:px-10 2xl:px-14 ${
+            scrolled
+              ? 'h-16 sm:h-[68px] min-[1200px]:h-[76px]'
+              : 'h-[68px] sm:h-[76px] min-[1200px]:h-[116px]'
+          }`}
+        >
+          {/* LEFT: hamburger (mobile/tablet) or first 3 links (desktop) */}
+          <div className="col-start-1 flex min-w-0 items-center justify-start">
             <button
+              ref={hamburgerRef}
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
-              className="flex h-10 w-10 items-center justify-center text-[#3b3023] hover:text-[#9b7847]"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
               aria-controls="mobile-navigation"
+              className={`-ml-1 flex h-11 w-11 items-center justify-center rounded-full text-[#3b3023] transition-colors hover:bg-[#f0e3bf] min-[1200px]:hidden ${focusRing}`}
             >
-              {menuOpen ? <X size={21} /> : <Menu size={21} />}
+              <Menu size={22} />
             </button>
+
+            <nav
+              aria-label="Main navigation"
+              className="hidden items-center gap-0.5 min-[1200px]:flex 2xl:gap-1"
+            >
+              {LEFT_LINKS.map(renderDesktopLink)}
+            </nav>
           </div>
 
-          {/* Desktop links: one horizontal row */}
-          <nav
-            aria-label="Main navigation"
-            className="hidden min-w-0 items-center justify-start gap-3 min-[1200px]:flex 2xl:gap-5"
-          >
-            {navLinks.map((link, index) =>
-              renderNavLink(link, index)
-            )}
-          </nav>
-
-          {/* Centered logo */}
+          {/* CENTER: logo. Stacked on desktop at the top, inline once scrolled. */}
           <Link
             to="/"
             onClick={closeMenu}
             aria-label="GoldSuree home"
-            className="col-start-2 row-start-1 text-center"
+            className={`col-start-2 flex min-w-0 items-center justify-center gap-2.5 rounded-md text-center ${focusRing} ${
+              scrolled ? '' : 'min-[1200px]:flex-col min-[1200px]:gap-1'
+            }`}
           >
-            <span className="block whitespace-nowrap font-editorial text-[22px] font-medium tracking-[0.02em] text-[#D4AF37] sm:text-[31px]">
-              GoldSuree
+            <span
+              className={`hidden shrink-0 overflow-hidden rounded-full border border-[#c7a24e]/60 bg-[#fffaf0] shadow-sm transition-all duration-300 min-[1200px]:block ${
+                scrolled ? 'h-8 w-8' : 'h-[42px] w-[42px]'
+              }`}
+            >
+              <img
+                src={LOGO_PATH}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-contain"
+              />
             </span>
-            <span className="mt-[-2px] block whitespace-nowrap text-[6px] uppercase tracking-[0.22em] text-[#786751] sm:text-[8px] sm:tracking-[0.36em]">
-              WE BUY GOLD
+
+            <span className="flex flex-col items-center">
+              <span
+                className={`block whitespace-nowrap font-editorial font-medium leading-none tracking-[0.02em] text-[#a97f12] transition-[font-size] duration-300 text-[22px] sm:text-[28px] ${
+                  scrolled ? 'min-[1200px]:text-[26px]' : 'min-[1200px]:text-[34px]'
+                }`}
+              >
+                GoldSuree
+              </span>
+              {/* <span
+                className={`mt-1 block whitespace-nowrap pl-[0.3em] text-[8px] font-semibold uppercase tracking-[0.3em] text-[#6b5a3a] sm:text-[9px] min-[1200px]:text-[10px] min-[1200px]:tracking-[0.36em] ${
+                  scrolled ? 'min-[1200px]:hidden' : ''
+                }`}
+              >
+                We Buy Gold
+              </span> */}
             </span>
           </Link>
 
-          {/* Contact button on the right */}
-          <div className="col-start-3 row-start-1 flex justify-end">
+          {/* RIGHT: last 2 links (desktop) + WhatsApp CTA */}
+          <div className="col-start-3 flex min-w-0 items-center justify-end gap-1 min-[1200px]:gap-3">
+            <nav
+              aria-label="Secondary navigation"
+              className="hidden items-center gap-0.5 min-[1200px]:flex 2xl:gap-1"
+            >
+              {RIGHT_LINKS.map(renderDesktopLink)}
+            </nav>
+
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contact GoldSuree on WhatsApp"
-              className="group inline-flex h-9 items-center justify-center gap-1 border border-[#a8874f] bg-[#e6d2ad] px-2 text-[8px] font-semibold uppercase tracking-[0.04em] text-[#302519] shadow-sm transition-all duration-300 hover:border-[#84602e] hover:bg-[#84602e] hover:text-white sm:h-10 sm:gap-2 sm:px-4 sm:text-[10px] sm:tracking-[0.12em] xl:px-5"
+              className={`group inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-[#b58b4b] pl-3.5 pr-3.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white shadow-sm transition-colors hover:bg-[#6f4c0e] sm:pl-5 sm:pr-1.5 sm:text-[11px] sm:tracking-[0.12em] min-[1200px]:pl-6 2xl:text-xs ${focusRing} ${
+                scrolled ? '' : 'min-[1200px]:h-12'
+              }`}
             >
-              <span>Contact Us</span>
-              <ArrowUpRight
-                size={14}
-                strokeWidth={1.5}
-                className="shrink-0 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-              />
+              <span className="sm:hidden">Contact</span>
+              <span className="hidden sm:inline">Contact Us</span>
+              <span className="hidden h-8 w-8 place-items-center rounded-full bg-white/20 sm:grid">
+                <ArrowUpRight
+                  size={15}
+                  strokeWidth={1.8}
+                  aria-hidden="true"
+                  className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </span>
             </a>
           </div>
         </div>
-      </motion.header>
+      </header>
 
-      {/* Mobile and tablet slide-out menu */}
+      {/* Mobile / tablet drawer */}
       <AnimatePresence>
         {menuOpen && (
           <>
-            <motion.button
-              type="button"
-              aria-label="Close navigation overlay"
+            <motion.div
+              key="overlay"
+              aria-hidden="true"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.2 }}
               onClick={closeMenu}
-              className="fixed inset-0 z-[65] bg-black/35 min-[1200px]:hidden"
+              className="fixed inset-0 z-[65] bg-[#201a14]/45 min-[1200px]:hidden"
             />
 
-            <motion.nav
+            <motion.aside
+              key="drawer"
               id="mobile-navigation"
-              aria-label="Mobile navigation"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation menu"
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{ duration: 0.28, ease: 'easeInOut' }}
-              className="fixed bottom-0 left-0 top-[100px] z-[70] w-[82%] max-w-sm overflow-y-auto overscroll-contain bg-[#f8f5ef] px-6 py-7 shadow-2xl sm:top-[108px] sm:px-7 sm:py-8 min-[1200px]:hidden"
+              transition={{ duration: reduceMotion ? 0 : 0.28, ease: 'easeInOut' }}
+              className="fixed inset-y-0 left-0 z-[70] flex w-[86%] max-w-sm flex-col bg-[#f8f5ef] shadow-2xl min-[1200px]:hidden"
             >
-              <p className="mb-5 text-[10px] uppercase tracking-[0.25em] text-[#9b773e]">
-                Explore GoldSuree
-              </p>
+              {/* Drawer header: brand + close */}
+              <div className="flex h-[68px] shrink-0 items-center justify-between border-b border-[#b99a63]/25 px-5 sm:h-[76px]">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-[#c7a24e]/50 bg-[#fffaf0] shadow-sm">
+                    <img
+                      src={LOGO_PATH}
+                      alt="GoldSuree, we buy gold"
+                      className="h-full w-full object-contain"
+                    />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-editorial text-xl leading-none text-[#a97f12]">
+                      GoldSuree
+                    </span>
+                    <span className="mt-1 block text-[9px] font-semibold uppercase tracking-[0.28em] text-[#6b5a3a]">
+                      We Buy Gold
+                    </span>
+                  </span>
+                </div>
 
-              <div className="flex flex-col">
-                {navLinks.map((link, index) =>
-                  renderNavLink(link, index, true)
-                )}
+                <button
+                  ref={closeButtonRef}
+                  type="button"
+                  onClick={closeMenu}
+                  aria-label="Close menu"
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#f0e3bf] text-[#6f4c0e] transition-colors hover:bg-[#e6d2ad] ${focusRing}`}
+                >
+                  <X size={20} />
+                </button>
               </div>
 
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={closeMenu}
-                className="mt-8 flex items-center justify-between gap-3 bg-[#302519] px-4 py-4 text-xs uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#84602e] sm:px-5"
-              >
-                <span>Contact Us on WhatsApp</span>
-                <ArrowUpRight size={16} className="shrink-0" />
-              </a>
+              {/* Links */}
+              <nav aria-label="Mobile navigation" className="flex-1 overflow-y-auto overscroll-contain px-6 py-3">
+                {NAV_LINKS.map((link, index) => (
+                  <motion.div
+                    key={link.label}
+                    initial={reduceMotion ? false : { opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: reduceMotion ? 0 : 0.08 + index * 0.04, duration: 0.25 }}
+                  >
+                    <NavItem
+                      link={link}
+                      mobile
+                      active={isActive(link)}
+                      onSectionClick={handleSectionClick}
+                      onPageClick={closeMenu}
+                    />
+                  </motion.div>
+                ))}
+              </nav>
 
-              <p className="mt-10 text-xs leading-6 text-[#817361]">
-                Crafted with tradition.
-                <br />
-                Designed for tomorrow.
-              </p>
-            </motion.nav>
+              {/* CTA pinned to the bottom, respects the iPhone home-indicator area */}
+              <div className="shrink-0 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={closeMenu}
+                  className={`flex min-h-[52px] items-center justify-center gap-3 rounded-full bg-[#8f6414] px-5 text-xs font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#6f4c0e] ${focusRing}`}
+                >
+                  Contact Us on WhatsApp
+                  <ArrowUpRight size={16} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
+                </a>
+              </div>
+            </motion.aside>
           </>
         )}
       </AnimatePresence>

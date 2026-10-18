@@ -62,3 +62,67 @@
     animation: none;
   }
 }
+
+.gold-jewellery-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.gold-jewellery-scene canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.gold-scene-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 50% 37%,
+      rgba(255, 249, 230, 0.9) 0%,
+      rgba(239, 220, 184, 0.32) 37%,
+      transparent 69%
+    ),
+    radial-gradient(
+      ellipse at 52% 80%,
+      rgba(173, 132, 68, 0.15),
+      transparent 45%
+    );
+  animation: gold-light-breathe 7s ease-in-out infinite alternate;
+}
+
+.gold-scene-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  color: #84602e;
+  font-family: Georgia, serif;
+  text-align: center;
+}
+
+@keyframes gold-light-breathe {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gold-scene-glow {
+    animation: none;
+  }
+}
