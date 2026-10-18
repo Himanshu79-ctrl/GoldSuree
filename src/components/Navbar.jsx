@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Menu, X, ArrowUpRight, Calculator , Phone} from 'lucide-react'
 
-const WHATSAPP_NUMBER = '918981298596'
+const WHATSAPP_NUMBER = '7004164598'
 const LOGO_PATH = '/images/goldsuree-logo.jpeg'
 const ANNOUNCEMENT_HEIGHT = 32 // px, matches h-8 on the announcement bar
 
