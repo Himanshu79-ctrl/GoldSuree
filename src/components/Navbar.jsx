@@ -14,7 +14,7 @@ const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
 const NAV_LINKS = [
   { label: 'Home', href: '#home', id: 'home' },
   { label: 'How It Works', href: '#how-it-works', id: 'how-it-works' },
-  { label: 'Why GoldSuree', href: '#why-goldsuree', id: 'why-goldsuree' },
+  { label: 'Gallery', href: '#about-goldsuree', id: 'about-goldsuree' },
   { label: 'About Us', href: '/about-us', type: 'page' },
 ]
 

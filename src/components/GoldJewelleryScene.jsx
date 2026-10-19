@@ -482,7 +482,7 @@ function Scene({ reducedMotion, isMobile, onReady }) {
       <SceneLights />
       <ResponsiveRig>
         <GoldPedestal reducedMotion={reducedMotion} />
-        <GoldParticles reducedMotion={reducedMotion} count={isMobile ? 10 : 16} />
+        <GoldParticles reducedMotion={reducedMotion} count={isMobile ? 8 : 12} />
         <Orbit radius={1.65} tube={0.005} rotation={[0.9, 0.25, 0.4]} speed={0.025} reducedMotion={reducedMotion} />
         <Orbit radius={1.95} tube={0.004} rotation={[0.3, 1, -0.45]} speed={-0.018} reducedMotion={reducedMotion} />
         <JewelleryCollection reducedMotion={reducedMotion} isMobile={isMobile} onReady={onReady} />
@@ -545,7 +545,7 @@ export default function GoldJewelleryScene() {
     gl.setClearAlpha(0)
   }}
   camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
-  dpr={isMobile ? [1, 1.75] : [1, 2]}
+  dpr={isMobile ? 1.25 : 1.5}
   frameloop={reducedMotion ? 'demand' : isVisible ? 'always' : 'never'}
   gl={{
     alpha: true,
