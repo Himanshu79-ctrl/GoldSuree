@@ -532,27 +532,32 @@ export default function GoldJewelleryScene() {
     >
       <div className="gold-scene-glow" aria-hidden="true" />
       <Canvas
-        style={{
-          opacity: ready ? 1 : 0,
-          transform: ready ? 'translateY(0)' : 'translateY(10px)',
-          transition: 'opacity 0.9s ease, transform 0.9s ease',
-          willChange: 'opacity, transform',
-          touchAction: 'pan-y', // phone pe canvas ke upar se page scroll ho sake
-        }}
-        camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
-        dpr={isMobile ? [1, 1.75] : [1, 2]}
-        frameloop={reducedMotion ? 'demand' : isVisible ? 'always' : 'never'}
-        gl={{
-          alpha: true,
-          antialias: true,
-          powerPreference: isMobile ? 'default' : 'high-performance',
-        }}
-        fallback={<div className="gold-scene-fallback">GoldSuree — Your Gold. Your True Worth.</div>}
-      >
-        <Suspense fallback={null}>
-          <Scene reducedMotion={reducedMotion} isMobile={isMobile} onReady={onReady} />
-        </Suspense>
-      </Canvas>
+  style={{
+    opacity: ready ? 1 : 0,
+    transform: ready ? 'translateY(0)' : 'translateY(10px)',
+    transition: 'opacity 0.9s ease, transform 0.9s ease',
+    willChange: 'opacity, transform',
+    touchAction: 'pan-y',
+    background: 'transparent',
+  }}
+  onCreated={({ gl }) => {
+    gl.setClearColor(0x000000, 0)
+    gl.setClearAlpha(0)
+  }}
+  camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
+  dpr={isMobile ? [1, 1.75] : [1, 2]}
+  frameloop={reducedMotion ? 'demand' : isVisible ? 'always' : 'never'}
+  gl={{
+    alpha: true,
+    antialias: true,
+    powerPreference: isMobile ? 'default' : 'high-performance',
+  }}
+  fallback={<div className="gold-scene-fallback">GoldSuree — Your Gold. Your True Worth.</div>}
+>
+  <Suspense fallback={null}>
+    <Scene reducedMotion={reducedMotion} isMobile={isMobile} onReady={onReady} />
+  </Suspense>
+</Canvas>
     </div>
   )
 }

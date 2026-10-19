@@ -12,7 +12,7 @@ export default function AboutUs() {
       <main className="about-page">
         <section className="about-hero">
           <span className="about-eyebrow">ABOUT US</span>
-          <h1>About GoldSuree</h1>
+          <h1>About <span>GoldSuree</span></h1>
           <p>
             Helping you understand the value of your old gold,
             with a straightforward and transparent approach.

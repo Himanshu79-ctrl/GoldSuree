@@ -27,7 +27,16 @@
 }
 
 .legal-hero h1 span {
-  color: #ad8247;
+  background: linear-gradient(
+    100deg,
+    #E8BD50 0%,
+    #C99525 48%,
+    #80520C 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .legal-hero > p {
@@ -83,15 +92,22 @@
 .legal-inline-link {
   display: inline-block;
   margin-top: 12px;
-  color: #a78248;
+  color: #ad8247;
   font-size: 13px;
   text-underline-offset: 4px;
 }
 
 .legal-notice {
-  padding: 28px;
+  padding: clamp(20px, 4vw, 30px);
   background: #eee5d7;
-  border-left: 2px solid #ad8247;
+  border: 1px solid #e1d3bd;
+  border-left: 3px solid transparent;
+  border-image: linear-gradient(
+    180deg,
+    #E8BD50 0%,
+    #C99525 48%,
+    #80520C 100%
+  ) 1;
 }
 
 @media (max-width: 600px) {

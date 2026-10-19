@@ -1,268 +1,351 @@
 
 import { useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Plus, Minus, ArrowUpRight } from 'lucide-react'
+import {
+  Plus,
+  Minus,
+  ArrowUpRight,
+  MessageCircle,
+  MapPin,
+  Sparkles,
+} from 'lucide-react'
+
+const WHATSAPP_URL = 'https://wa.me/918981298596'
+const PHONE_NUMBER = '8981298596'
 
 const faqGroups = [
   {
-    category: 'Selling Your Gold',
     number: '01',
+    title: 'Selling your gold',
+    subtitle: 'Everything to know before you sell.',
     questions: [
       {
-        question: 'Does GoldSuree buy old gold jewellery?',
-        answer:
-          'Yes. GoldSuree evaluates old, unwanted and used gold jewellery, along with other eligible gold items. Acceptance is subject to evaluation and applicable requirements.',
+        q: 'Does GoldSuree buy old gold jewellery?',
+        a: 'Yes. GoldSuree evaluates old, used and unwanted gold jewellery. Other eligible gold items may also be assessed, subject to verification and applicable requirements.',
       },
       {
-        question: 'Can I sell broken or damaged gold jewellery?',
-        answer:
-          'Yes. You can bring broken or damaged gold jewellery for evaluation. Its value depends on factors such as gold content, purity and weight.',
+        q: 'Can I sell broken or damaged gold jewellery?',
+        a: 'Yes. Broken, damaged or unused gold jewellery can be brought in for evaluation. Its value depends on the gold content, purity and relevant weight.',
       },
       {
-        question: 'Can I sell non-hallmarked gold?',
-        answer:
-          'Yes, you can bring non-hallmarked gold for evaluation. The gold can be tested and its purity verified as part of the assessment.',
+        q: 'Can I sell non-hallmarked gold?',
+        a: 'Yes. Non-hallmarked jewellery can be assessed through purity testing. The final evaluation depends on the results of the assessment.',
       },
       {
-        question: 'Do you buy gold coins?',
-        answer:
-          'Eligible gold coins can be brought in for evaluation. Acceptance and valuation depend on verification and the applicable requirements.',
+        q: 'Do you buy gold coins?',
+        a: 'Eligible gold coins can be brought in for assessment. Acceptance and valuation depend on verification and applicable requirements.',
       },
       {
-        question: 'Do you buy jewellery with stones?',
-        answer:
-          'Jewellery containing stones can be assessed. The relevant gold weight and value are determined during the evaluation, taking the non-gold components into account.',
+        q: 'Do you buy jewellery with stones?',
+        a: 'Jewellery with stones can be assessed. The valuation considers the relevant gold content and weight, while non-gold components may be treated separately.',
       },
     ],
   },
   {
-    category: 'Purity & Valuation',
     number: '02',
+    title: 'Purity & valuation',
+    subtitle: 'Know how your gold is assessed.',
     questions: [
       {
-        question: 'How is gold purity checked?',
-        answer:
-          'Gold purity is assessed using professional testing methods. XRF testing may be used where appropriate to help evaluate the gold.',
+        q: 'How is gold purity checked?',
+        a: 'Gold purity is assessed using appropriate testing methods. XRF testing may be used where suitable as part of the evaluation.',
       },
       {
-        question: 'How is the value of my gold calculated?',
-        answer:
-          'The valuation considers the assessed purity, relevant gold weight and applicable gold rate. The resulting estimate reflects these factors and the applicable transaction calculations.',
+        q: 'How is the value of my gold calculated?',
+        a: 'The assessment considers gold purity, relevant gold weight and the applicable gold rate. The valuation is explained so you can understand the basis of the estimate.',
       },
       {
-        question: 'Do I have to sell my gold after valuation?',
-        answer:
-          'No. You can review the valuation, ask questions and decide whether you want to proceed. The decision to sell is yours.',
+        q: 'Do I have to sell after getting a valuation?',
+        a: 'No. You can review the valuation, ask questions and decide whether you want to proceed. The decision to sell is yours.',
       },
     ],
   },
   {
-    category: 'Visit & Contact',
     number: '03',
+    title: 'Visit & contact',
+    subtitle: 'A few details before you visit.',
     questions: [
       {
-        question: 'Where is GoldSuree located in Electronic City?',
-        answer:
-          'GoldSuree is located on the 1st Floor of SVS Arcade, Ananth Nagar Road, Electronic City Phase 2, Bangalore – 560100.',
+        q: 'Where is GoldSuree located?',
+        a: 'Visit us at 1st Floor, SVS Arcade, Ananth Nagar Road, Electronic City Phase 2, Bangalore – 560100.',
       },
       {
-        question: 'Do I need an appointment before visiting?',
-        answer:
-          'We recommend contacting GoldSuree before your visit to confirm the current business hours and any requirements for your evaluation.',
+        q: 'Do I need an appointment?',
+        a: 'We recommend contacting us before visiting to confirm current business hours and any requirements for your gold assessment.',
       },
       {
-        question: 'Where can I find GoldSuree?',
-        answer:
-          'Visit us at the 1st Floor, SVS Arcade, Ananth Nagar Road, Electronic City Phase 2, Bangalore – 560100.',
+        q: 'What should I bring when visiting?',
+        a: 'Bring the gold items you would like assessed. If you have questions about a particular item or its eligibility, contact us before your visit.',
       },
       {
-        question: 'How can I contact GoldSuree?',
-        answer:
-          'Call or WhatsApp us at 8981298596 for enquiries before your visit.',
-        contact: true,
+        q: 'How can I contact GoldSuree?',
+        a: 'Call us or send a WhatsApp message to enquire about old gold evaluation and plan your visit.',
       },
     ],
   },
 ]
 
+function FAQItem({ item, index, isOpen, onToggle, reducedMotion }) {
+  const answerId = `faq-answer-${index}`
+  const buttonId = `faq-question-${index}`
+
+  return (
+    <article
+      className={`relative border-b transition-colors duration-200 ${
+        isOpen
+          ? 'border-[#c99525]/50 bg-[#fffdf8]'
+          : 'border-[#ddd5c8] bg-transparent'
+      }`}
+    >
+      {isOpen && (
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-[#E8BD50] via-[#C99525] to-[#80520C]"
+        />
+      )}
+
+      <button
+        id={buttonId}
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls={answerId}
+        onClick={onToggle}
+        className="group flex min-h-[68px] w-full items-center gap-3 px-3 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#9b701e] sm:min-h-[76px] sm:gap-5 sm:px-6 sm:py-5"
+      >
+        <span
+          aria-hidden="true"
+          className={`shrink-0 font-mono text-[10px] tabular-nums sm:text-[11px] ${
+            isOpen ? 'text-[#946819]' : 'text-[#8b8173]'
+          }`}
+        >
+          {String(index + 1).padStart(2, '0')}
+        </span>
+
+        <span
+          className={`min-w-0 flex-1 break-words text-[13px] font-semibold leading-6 sm:text-[15px] ${
+            isOpen ? 'text-[#30271e]' : 'text-[#3d352c]'
+          }`}
+        >
+          {item.q}
+        </span>
+
+        <span
+          aria-hidden="true"
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors duration-200 sm:h-9 sm:w-9 ${
+            isOpen
+              ? 'border-[#c99525] bg-[#c99525] text-white'
+              : 'border-[#d8cebe] bg-[#faf7f0] text-[#554735] group-hover:border-[#b58b4a] group-hover:bg-[#f3ead8]'
+          }`}
+        >
+          {isOpen ? <Minus size={15} /> : <Plus size={15} />}
+        </span>
+      </button>
+
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            id={answerId}
+            key="answer"
+            role="region"
+            aria-labelledby={buttonId}
+            initial={reducedMotion ? false : { height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={
+              reducedMotion
+                ? undefined
+                : { height: 0, opacity: 0 }
+            }
+            transition={{ duration: reducedMotion ? 0 : 0.22 }}
+            className="overflow-hidden"
+          >
+            <p className="max-w-2xl break-words pb-5 pl-9 pr-4 text-[12px] leading-6 text-[#6a6053] sm:pb-6 sm:pl-[4.6rem] sm:pr-8 sm:text-sm sm:leading-7">
+              {item.a}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </article>
+  )
+}
+
 export default function FAQSection() {
-  const reduceMotion = useReducedMotion()
-  const [openQuestion, setOpenQuestion] = useState(null)
+  const reducedMotion = useReducedMotion()
+  const [openItem, setOpenItem] = useState('0-0')
 
   return (
     <section
       id="faq"
-      className="scroll-mt-24 bg-[#f8f5ef] px-5 py-20 text-[#292117] sm:px-8 sm:py-28 lg:px-16"
+      aria-labelledby="faq-title"
+      className="relative overflow-clip bg-[#f4f0e8] text-[#30271e]"
     >
-      <div className="mx-auto max-w-[1400px]">
+      <div className="h-[3px] w-full bg-gradient-to-r from-[#80520C] via-[#E8BD50] to-[#C99525]" />
+
+      <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 md:px-8 md:py-20 lg:px-12 lg:py-24">
+        {/* Heading */}
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+          whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.65 }}
-          className="mb-14 max-w-3xl"
+          transition={{ duration: 0.45 }}
+          className="mb-9 grid min-w-0 gap-5 border-b border-[#d8cdbb] pb-7 sm:mb-12 sm:gap-7 sm:pb-9 md:grid-cols-[1.2fr_0.8fr] md:items-end lg:mb-16 lg:pb-12"
         >
-          <div className="mb-5 flex items-center gap-3">
-            <span className="h-px w-9 bg-[#c5a16b]" />
-            <p className="text-[10px] uppercase tracking-[0.25em] text-[#987544]">
-              Everything you need to know
-            </p>
+          <div className="min-w-0">
+            <div className="mb-4 flex items-center gap-2.5 sm:mb-5">
+              <Sparkles size={15} className="shrink-0 text-[#a77820]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#766650] sm:tracking-[0.25em]">
+                Here to help
+              </span>
+            </div>
+
+            <h2
+              id="faq-title"
+              className="font-editorial text-[2.35rem] font-normal leading-[1.12] tracking-[-0.035em] sm:text-5xl lg:text-[4.25rem]"
+            >
+              Frequently Asked
+              <br />
+              <span className="bg-gradient-to-r from-[#E8BD50] via-[#C99525] to-[#80520C] bg-clip-text italic text-transparent">
+                Questions
+              </span>
+            </h2>
           </div>
 
-          <h2 className="font-editorial text-4xl leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-            Frequently Asked
-            <br />
-            <span className="italic text-[#b18b52]">Questions.</span>
-          </h2>
-
-          <p className="mt-6 max-w-xl text-sm leading-7 text-[#756a5b]">
-            From gold purity and valuation to planning your visit, find answers
-            to common questions about selling your gold with GoldSuree.
-          </p>
+          <div className="min-w-0 md:justify-self-end">
+            <p className="max-w-md text-sm leading-7 text-[#6e6253] sm:text-base sm:leading-8">
+              Have questions about selling your old gold? Find clear answers
+              about our assessment process, purity testing and how to visit us.
+            </p>
+            <p className="mt-3 text-xs font-medium tracking-wide text-[#8b7655] sm:mt-4">
+              Browse the topics below to learn more.
+            </p>
+          </div>
         </motion.div>
 
-        <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
-          <div className="h-fit border border-[#e3d8c6] bg-[#eee7db] p-7 sm:p-9 lg:sticky lg:top-28">
-            <span className="font-editorial text-5xl text-[#c5a16b]">
-              12
-            </span>
-
-            <h3 className="mt-4 font-editorial text-2xl">
-              Questions, answered.
-            </h3>
-
-            <p className="mt-3 text-sm leading-7 text-[#756a5b]">
-              Selling gold should feel straightforward. Understand the process,
-              get your questions answered and make a decision that feels right
-              for you.
+        {/* Mobile: topics first, then all questions. Desktop: two columns. */}
+        <div className="grid min-w-0 grid-cols-1 items-start gap-8 sm:gap-10 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-12 xl:gap-16">
+          <aside className="min-w-0 lg:pt-1">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a7659] sm:mb-4">
+              Explore by topic
             </p>
 
-            <div className="mt-7 h-px w-full bg-[#d9cbb5]" />
-
-            <p className="mt-6 text-xs uppercase tracking-[0.16em] text-[#8c6a3e]">
-              Need more information?
-            </p>
-
-            <a
-              href="https://wa.me/918981298596"
-              target="_blank"
-              rel="noreferrer"
-              className="mt-4 inline-flex items-center gap-2 border border-[#c5a16b] px-5 py-3 text-xs uppercase tracking-[0.12em] transition-colors duration-300 hover:bg-[#c5a16b] hover:text-[#292117]"
+            <nav
+              aria-label="FAQ topics"
+              className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-1"
             >
-              Contact GoldSuree
-              <ArrowUpRight size={15} strokeWidth={1.5} />
-            </a>
-          </div>
+              {faqGroups.map((group, i) => (
+                <a
+                  key={group.title}
+                  href={`#faq-group-${i}`}
+                  className="flex min-h-12 min-w-0 items-center justify-between gap-3 border border-[#ded4c4] bg-[#faf7f0] px-4 py-3 text-sm font-medium text-[#43382b] transition-colors hover:border-[#b58b4a] hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#9b701e]"
+                >
+                  <span className="min-w-0 break-words">{group.title}</span>
+                  <ArrowUpRight
+                    size={15}
+                    className="shrink-0 text-[#9a752e]"
+                  />
+                </a>
+              ))}
+            </nav>
 
-          <div>
-            {faqGroups.map((group, groupIndex) => (
-              <motion.div
-                key={group.number}
-                initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{
-                  duration: 0.5,
-                  delay: reduceMotion ? 0 : groupIndex * 0.08,
-                }}
-                className="mb-10 last:mb-0"
+            <div className="mt-5 bg-[#292219] p-5 text-[#f7f1e7] sm:mt-7 sm:p-6">
+              <p className="font-editorial text-2xl leading-tight sm:text-[1.75rem]">
+                Need a little more clarity?
+              </p>
+              <p className="mt-3 text-sm leading-6 text-[#d0c3b0]">
+                Our team can help you with questions before your visit.
+              </p>
+
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 bg-gradient-to-r from-[#E8BD50] via-[#C99525] to-[#80520C] px-3 py-2 text-center text-xs font-semibold text-[#241d15] transition-[filter] hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#E8BD50] sm:px-4 sm:text-sm"
               >
-                <div className="mb-3 flex items-center gap-3">
-                  <span className="font-editorial text-sm text-[#b18b52]">
-                    {group.number}
-                  </span>
-                  <h3 className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#8c6a3e]">
-                    {group.category}
-                  </h3>
-                </div>
+                <MessageCircle size={16} className="shrink-0" />
+                Chat on WhatsApp
+                <ArrowUpRight size={15} className="shrink-0" />
+              </a>
 
-                <div className="border-t border-[#d9cbb5]">
-                  {group.questions.map((item, questionIndex) => {
-                    const id = `${group.number}-${questionIndex}`
-                    const isOpen = openQuestion === id
+              <a
+                href={`tel:${PHONE_NUMBER}`}
+                className="mt-3 flex min-h-11 items-center justify-center gap-2 border border-white/20 px-3 py-2 text-sm text-[#f7f1e7] transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#E8BD50]"
+              >
+                Call {PHONE_NUMBER}
+              </a>
+            </div>
 
-                    return (
-                      <div
-                        key={id}
-                        className="border-b border-[#d9cbb5]"
-                      >
-                        <button
-                          type="button"
-                          aria-expanded={isOpen}
-                          aria-controls={`faq-answer-${id}`}
-                          onClick={() =>
-                            setOpenQuestion(isOpen ? null : id)
+            <div className="mt-5 flex min-w-0 gap-3 text-sm leading-6 text-[#716454] sm:mt-6">
+              <MapPin
+                size={17}
+                className="mt-1 shrink-0 text-[#9a752e]"
+              />
+              <address className="min-w-0 break-words not-italic">
+                1st Floor, SVS Arcade,
+                <br />
+                Ananth Nagar Road,
+                <br />
+                Electronic City Phase 2,
+                <br />
+                Bangalore – 560100
+              </address>
+            </div>
+          </aside>
+
+          <div className="min-w-0">
+            {faqGroups.map((group, groupIndex) => {
+              const firstQuestionIndex = faqGroups
+                .slice(0, groupIndex)
+                .reduce((total, currentGroup) => total + currentGroup.questions.length, 0)
+
+              return (
+                <motion.div
+                  id={`faq-group-${groupIndex}`}
+                  key={group.title}
+                  initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+                  whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.05 }}
+                  transition={{ duration: 0.35 }}
+                  className="mb-9 min-w-0 scroll-mt-24 last:mb-0 sm:mb-12"
+                >
+                  <div className="mb-3 flex min-w-0 items-end justify-between gap-3 border-b-2 border-[#b58b4a] pb-3 sm:pb-4">
+                    <div className="min-w-0">
+                      <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#9a752e] sm:tracking-[0.18em]">
+                        Section {group.number}
+                      </p>
+                      <h3 className="break-words font-editorial text-2xl font-normal leading-tight text-[#30271e] sm:text-[1.8rem]">
+                        {group.title}
+                      </h3>
+                      <p className="mt-1 text-xs leading-5 text-[#796d5e] sm:text-sm">
+                        {group.subtitle}
+                      </p>
+                    </div>
+
+                    <span className="shrink-0 pb-1 text-[10px] tabular-nums text-[#897b68] sm:text-xs">
+                      {String(group.questions.length).padStart(2, '0')} topics
+                    </span>
+                  </div>
+
+                  <div className="border-t border-[#ddd5c8]">
+                    {group.questions.map((item, itemIndex) => {
+                      const itemId = `${groupIndex}-${itemIndex}`
+                      const globalIndex = firstQuestionIndex + itemIndex
+
+                      return (
+                        <FAQItem
+                          key={item.q}
+                          item={item}
+                          index={globalIndex}
+                          isOpen={openItem === itemId}
+                          reducedMotion={reducedMotion}
+                          onToggle={() =>
+                            setOpenItem(openItem === itemId ? null : itemId)
                           }
-                          className="group flex w-full items-center justify-between gap-5 py-5 text-left sm:py-6"
-                        >
-                          <span className="font-editorial text-lg leading-snug transition-colors duration-300 group-hover:text-[#987544] sm:text-xl">
-                            {item.question}
-                          </span>
-
-                          <span
-                            className={`flex h-8 w-8 shrink-0 items-center justify-center border transition-colors duration-300 ${
-                              isOpen
-                                ? 'border-[#c5a16b] bg-[#c5a16b] text-[#292117]'
-                                : 'border-[#d9cbb5] text-[#987544] group-hover:border-[#c5a16b]'
-                            }`}
-                          >
-                            {isOpen ? (
-                              <Minus size={16} strokeWidth={1.5} />
-                            ) : (
-                              <Plus size={16} strokeWidth={1.5} />
-                            )}
-                          </span>
-                        </button>
-
-                        <AnimatePresence initial={false}>
-                          {isOpen && (
-                            <motion.div
-                              id={`faq-answer-${id}`}
-                              initial={
-                                reduceMotion
-                                  ? false
-                                  : { height: 0, opacity: 0 }
-                              }
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={
-                                reduceMotion
-                                  ? { opacity: 0 }
-                                  : { height: 0, opacity: 0 }
-                              }
-                              transition={{ duration: reduceMotion ? 0 : 0.25 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="max-w-2xl pb-6 pr-8 text-sm leading-7 text-[#756a5b]">
-                                {item.answer}
-
-                                {item.contact && (
-                                  <div className="mt-4 flex flex-wrap gap-x-5 gap-y-3">
-                                    <a
-                                      href="tel:8981298596"
-                                      className="text-xs uppercase tracking-[0.12em] text-[#987544] underline decoration-[#c5a16b] underline-offset-4"
-                                    >
-                                      Call us
-                                    </a>
-                                    <a
-                                      href="https://wa.me/918981298596"
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="text-xs uppercase tracking-[0.12em] text-[#987544] underline decoration-[#c5a16b] underline-offset-4"
-                                    >
-                                      WhatsApp us
-                                    </a>
-                                  </div>
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    )
-                  })}
-                </div>
-              </motion.div>
-            ))}
+                        />
+                      )
+                    })}
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </div>

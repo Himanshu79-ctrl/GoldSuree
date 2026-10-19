@@ -24,31 +24,35 @@ const trustItems = [
 
 export default function HeroSection() {
   const reduceMotion = useReducedMotion()
-  const [sceneReady, setSceneReady] = useState(false)
+  
 
-  useEffect(() => {
-    let idleId
-    let timerId
+const [sceneReady, setSceneReady] = useState(false)
 
-    if ('requestIdleCallback' in window) {
-      idleId = window.requestIdleCallback(
-        () => setSceneReady(true),
-        { timeout: 1200 }
-      )
-    } else {
-      timerId = window.setTimeout(
-        () => setSceneReady(true),
-        300
-      )
+useEffect(() => {
+  let idleId
+  let timerId
+
+  if ('requestIdleCallback' in window) {
+    idleId = window.requestIdleCallback(
+      () => setSceneReady(true),
+      { timeout: 1200 }
+    )
+  } else {
+    timerId = window.setTimeout(
+      () => setSceneReady(true),
+      300
+    )
+  }
+
+  return () => {
+    if (idleId !== undefined) {
+      window.cancelIdleCallback(idleId)
     }
+    window.clearTimeout(timerId)
+  }
+}, [])
 
-    return () => {
-      if (idleId !== undefined) {
-        window.cancelIdleCallback(idleId)
-      }
-      window.clearTimeout(timerId)
-    }
-  }, [])
+
 
   const reveal = (delay = 0) => ({
     initial: reduceMotion ? false : { opacity: 0, y: 22 },

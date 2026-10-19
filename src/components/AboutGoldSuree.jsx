@@ -7,42 +7,42 @@ const photos = [
     number: '01',
     title: 'The Entrance',
     image:
-      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=85',
+      '/The Entrance.jpeg',
     className: 'gs-photo-main',
   },
   {
     number: '02',
     title: 'Inside GoldSuree',
     image:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85',
+      '/Gemini_Generated_Image_cclh2tcclh2tcclh.png',
     className: 'gs-photo-interior',
   },
   {
     number: '03',
     title: 'Our Space',
     image:
-      'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=800&q=85',
+      '/Every detail.jpeg',
     className: 'gs-photo-space',
   },
   {
     number: '04',
     title: 'Precision & Care',
     image:
-      'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=800&q=85',
+      '/precision & care.jpeg',
     className: 'gs-photo-care',
   },
   {
     number: '05',
     title: 'Every Detail',
     image:
-      'https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=900&q=85',
+      '/our space.jpeg',
     className: 'gs-photo-detail',
   },
   {
     number: '06',
     title: 'A Welcoming Space',
     image:
-      'https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?auto=format&fit=crop&w=900&q=85',
+      '/Inside goldsuree.jpeg',
     className: 'gs-photo-welcome',
   },
 ]
