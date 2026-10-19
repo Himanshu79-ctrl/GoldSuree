@@ -1,5 +1,7 @@
 
 import React from "react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "./TermsAndConditions.css";
 
 const sections = [
@@ -166,6 +168,8 @@ const sections = [
 
 export default function TermsAndConditions() {
   return (
+    <>
+      <Navbar />
     <main className="legal-page">
       <header className="legal-hero">
         <span className="legal-eyebrow">GOLDSUREE · LEGAL</span>
@@ -214,5 +218,7 @@ export default function TermsAndConditions() {
         </section>
       </article>
     </main>
+      <Footer />
+    </>
   );
 }

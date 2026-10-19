@@ -1,5 +1,7 @@
 
 import React from "react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import "./PrivacyPolicy.css";
 
 const sections = [
@@ -114,13 +116,15 @@ const sections = [
     title: "14. Contact Us",
     paragraphs: [
       "If you have questions, concerns or requests regarding this Privacy Policy or the handling of your personal information, please contact:",
-      "GoldSuree\n1st Floor, SVS Arcade, Ananth Nagar Road,\nElectronic City Phase 2, Bangalore – 560100\n\nPhone / WhatsApp: 8981298596\nEmail: contact@goldsuree.in\nWebsite: www.goldsuree.in",
+      "GoldSuree\n1st Floor, SVS Arcade, Ananth Nagar Road,\nElectronic City Phase 2, Bangalore – 560100\n\nPhone / WhatsApp: 8981298596\nEmail: contact@goldsuree.in\nWebsite: www.goldsuree.com",
     ],
   },
 ];
 
 export default function PrivacyPolicy() {
   return (
+    <>
+      <Navbar />
     <main className="legal-page">
       <header className="legal-hero">
         <span className="legal-eyebrow">GOLDSUREE · LEGAL</span>
@@ -166,5 +170,7 @@ export default function PrivacyPolicy() {
         </section>
       </article>
     </main>
+      <Footer />
+    </>
   );
 }
