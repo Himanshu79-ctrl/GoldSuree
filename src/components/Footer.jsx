@@ -30,10 +30,23 @@ export default function Footer() {
   return (
     <footer
       id="footer"
-      className="bg-[#211a12] px-5 text-[#f8f5ef] sm:px-8 lg:px-16"
+      className="relative isolate overflow-hidden bg-[#211a12] px-5 text-[#f8f5ef] sm:px-8 lg:px-16"
     >
-      <div className="mx-auto max-w-[1400px]">
+      
+{/* Top-left smooth circular arcs */}
+<div
+  aria-hidden="true"
+  className="pointer-events-none absolute left-[-190px] top-[-285px] -z-10 h-[480px] w-[480px] rounded-full border border-[#c99525]/25 shadow-[0_0_0_32px_rgba(201,149,37,0.025),0_0_0_64px_rgba(201,149,37,0.018)]"
+/>
 
+{/* Bottom-right smooth circular arcs */}
+<div
+  aria-hidden="true"
+  className="pointer-events-none absolute bottom-[-320px] right-[-190px] -z-10 h-[480px] w-[480px] rounded-full border border-[#c99525]/25 shadow-[0_0_0_32px_rgba(201,149,37,0.025),0_0_0_64px_rgba(201,149,37,0.018)]"
+/>
+
+
+      <div className="relative mx-auto max-w-[1400px]">
         {/* Main footer */}
         <div className="grid gap-10 border-b border-[#493b2a] py-12 sm:grid-cols-2 lg:grid-cols-[1.05fr_0.75fr_1.5fr_0.9fr] lg:gap-10 lg:py-16">
 

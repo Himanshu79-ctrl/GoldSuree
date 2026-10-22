@@ -9,6 +9,9 @@ import {
 
 const Home = lazy(() => import("./pages/Home"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
+const SellYourGold = lazy(
+  () => import("./pages/SellYourGold")
+);
 const Gallery = lazy(() => import("./components/AboutGoldSuree"));
 const TermsAndConditions = lazy(
   () => import("./pages/TermsAndConditions")
@@ -32,6 +35,10 @@ export default function App() {
             <Route
               path="/why-goldsuree"
               element={<Navigate to="/gallery" replace />}
+            />
+            <Route
+              path="/sell-old-gold-electronic-city"
+              element={<SellYourGold />}
             />
 
             <Route

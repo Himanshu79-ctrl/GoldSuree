@@ -93,9 +93,13 @@ useEffect(() => {
             Ready to sell old, broken or unwanted gold jewellery? Understand how purity, eligible gold weight and the applicable gold rate influence its estimated value before deciding whether to sell.
           </motion.p>
 
+        
           <motion.div {...reveal(0.32)} className="gs-hero-actions">
-            <a href="#gold-calculator" className="gs-btn-primary">
-              Calculate Gold Value
+            <a
+              href="/sell-old-gold-electronic-city"
+              className="gs-btn-primary"
+            >
+              Sell Your Gold
               <ArrowUpRight size={17} />
             </a>
 
@@ -105,6 +109,7 @@ useEffect(() => {
             </a>
           </motion.div>
 
+          
           <motion.div {...reveal(0.4)} className="gs-hero-assurance">
             <ShieldCheck size={31} strokeWidth={1.35} />
             <p>
@@ -166,11 +171,16 @@ useEffect(() => {
             </div>
           </motion.aside>
 
+          
+          
           <div className="gs-art-caption">
-            <span>Gold, in a new light</span>
-            <h2>Every piece has a story.</h2>
-            <div className="gs-caption-rule" />
+            <h2 className="gs-art-caption__title">
+              <span>Your Gold. Your Value.</span>
+              <span className="gs-art-caption__accent">Our Trust.</span>
+            </h2>
           </div>
+
+
         </motion.div>
       </div>
 
