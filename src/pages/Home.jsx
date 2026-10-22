@@ -1,6 +1,8 @@
 import Navbar from '../components/Navbar'
 import SectionTransition from '../components/SectionTransition'
 import HeroSection from '../components/HeroSection'
+import WhatGoldWeBuy from '../components/WhatGoldWeBuy'
+import GoldPurityValuation from '../components/GoldPurityValuation'
 import GoldMarquee from '../components/GoldMarquee'
 import GoldSellingSteps from '../components/GoldSellingSteps'
 import AboutGoldSuree from '../components/AboutGoldSuree'
@@ -16,7 +18,8 @@ export default function Home() {
       <HeroSection />
       <GoldMarquee />
       <GoldSellingSteps />
-      {/* <SectionTransition from="#f8f5ef" to="#f8f5ef" /> */}
+      <WhatGoldWeBuy />
+      <GoldPurityValuation />
       <AboutGoldSuree />
       <FAQSection />
       <ContactSection />

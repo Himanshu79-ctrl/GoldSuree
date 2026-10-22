@@ -1,4 +1,5 @@
+
 User-agent: *
 Allow: /
 
-Sitemap: https://gold-suree.vercel.app/sitemap.xml
+Sitemap: https://goldsuree.in/sitemap.xml

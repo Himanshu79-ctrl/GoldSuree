@@ -313,14 +313,14 @@ export default function GoldSellingSteps() {
           </motion.div>
         </div>
 
-        <motion.p
+        {/* <motion.p
           initial={reducedMotion ? false : { opacity: 0 }}
           animate={opened || reducedMotion ? { opacity: 1 } : {}}
           transition={{ duration: reducedMotion ? 0 : 0.6, delay: 0.5 }}
           className="mt-8 text-center text-xs tracking-wide text-[#806f58]"
         >
           Your gold, evaluated with care. Your decision, always respected.
-        </motion.p>
+        </motion.p> */}
       </div>
     </section>
   )
