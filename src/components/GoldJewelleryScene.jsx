@@ -365,7 +365,7 @@ function JewelleryCollection({ reducedMotion, isMobile, onReady }) {
   useEffect(() => {
     let cancelled = false
     const aniso = Math.min(isMobile ? 8 : 16, gl.capabilities.getMaxAnisotropy())
-    const size = isMobile ? 1536 : 2048
+    const size = isMobile ? 1024 : 1536
     const key = `${LOGO_URL || 'canvas'}-${size}-${aniso}`
 
     const finish = (tex) => {
@@ -482,7 +482,7 @@ function Scene({ reducedMotion, isMobile, onReady }) {
       <SceneLights />
       <ResponsiveRig>
         <GoldPedestal reducedMotion={reducedMotion} />
-        <GoldParticles reducedMotion={reducedMotion} count={isMobile ? 8 : 12} />
+        <GoldParticles reducedMotion={reducedMotion} count={isMobile ? 4 : 10} />
         <Orbit radius={1.65} tube={0.005} rotation={[0.9, 0.25, 0.4]} speed={0.025} reducedMotion={reducedMotion} />
         <Orbit radius={1.95} tube={0.004} rotation={[0.3, 1, -0.45]} speed={-0.018} reducedMotion={reducedMotion} />
         <JewelleryCollection reducedMotion={reducedMotion} isMobile={isMobile} onReady={onReady} />
@@ -545,11 +545,11 @@ export default function GoldJewelleryScene() {
     gl.setClearAlpha(0)
   }}
   camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
-  dpr={isMobile ? 1.25 : 1.5}
+  dpr={isMobile ? 1 : 1.25}
   frameloop={reducedMotion ? 'demand' : isVisible ? 'always' : 'never'}
   gl={{
     alpha: true,
-    antialias: true,
+    antialias: !isMobile,
     powerPreference: isMobile ? 'default' : 'high-performance',
   }}
   fallback={<div className="gold-scene-fallback">GoldSuree — Your Gold. Your True Worth.</div>}
