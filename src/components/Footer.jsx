@@ -15,7 +15,7 @@ const footerLinks = [
 ]
 
 const BUSINESS_ADDRESS =
-  '1st floor, SVS Arcade, Kammasandra - Ananth Nagar Main Rd, near Vishal Mega Mart, Ananth Nagar, Phase 1, Phase II, Electronic City, Bengaluru, Hebbagodi, Karnataka 560100'
+  'GoldSuree - We Buy Gold,1st floor, SVS Arcade, Kammasandra - Ananth Nagar Main Rd, near Vishal Mega Mart, Ananth Nagar, Phase 1, Phase II, Electronic City, Bengaluru, Hebbagodi, Karnataka 560100'
 
 const MAP_SEARCH_URL =
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(BUSINESS_ADDRESS)}`
