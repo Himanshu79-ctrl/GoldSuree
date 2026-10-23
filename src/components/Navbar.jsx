@@ -440,8 +440,8 @@ export default function Navbar() {
                     />
                   </span>
 
-                  <span className="whitespace-nowrap font-serif text-[21px] font-semibold tracking-tight text-[#302719] sm:text-2xl">
-                    GoldSuree
+                  <span className="whitespace-nowrap bg-gradient-to-b from-[#E8BD50] via-[#C99525] to-[#80520C] bg-clip-text font-editorial text-[22px] font-medium leading-none tracking-[0.01em] text-transparent sm:text-[27px]">
+                      GoldSuree
                   </span>
                 </Link>
 

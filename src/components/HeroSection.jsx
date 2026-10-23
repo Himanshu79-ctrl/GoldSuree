@@ -89,9 +89,11 @@ useEffect(() => {
             aria-hidden="true"
           />
 
-          <motion.p {...reveal(0.25)} className="gs-hero-description">
-            Ready to sell old, broken or unwanted gold jewellery? Understand how purity, eligible gold weight and the applicable gold rate influence its estimated value before deciding whether to sell.
-          </motion.p>
+          <p className="gs-hero-description">
+            Ready to sell old, broken or unwanted gold jewellery? Understand how purity,
+            eligible gold weight and the applicable gold rate influence its estimated
+            value before deciding whether to sell.
+          </p>
 
         
           <motion.div {...reveal(0.32)} className="gs-hero-actions">

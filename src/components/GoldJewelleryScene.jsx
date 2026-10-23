@@ -282,7 +282,7 @@ function Orbit({ radius, tube, rotation, speed = 0.025, reducedMotion = false })
   })
   return (
     <mesh ref={ref} rotation={rotation}>
-      <torusGeometry args={[radius, tube, 8, 128]} />
+      <torusGeometry args={[radius, tube, 6, 64]} />
       <meshBasicMaterial color="#c99b4d" transparent opacity={0.42} />
     </mesh>
   )
@@ -434,8 +434,7 @@ function JewelleryCollection({ reducedMotion, isMobile, onReady }) {
   })
 
   if (!texture) return null
-
-  const segments = isMobile ? 64 : 96
+const segments = isMobile ? 40 : 64
 
   return (
     <group ref={ref}>
