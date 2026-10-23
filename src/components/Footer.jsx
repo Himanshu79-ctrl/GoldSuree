@@ -131,16 +131,18 @@ export default function Footer() {
             {/* Embedded Google Map */}
             <div className="group relative mt-5 overflow-hidden border border-[#8e7048]/60 bg-[#30271e] p-1">
               <div className="relative h-48 overflow-hidden sm:h-52">
-                <iframe
-                  title="GoldSuree store location on Google Maps"
-                  src={MAP_EMBED_URL}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  allowFullScreen
-                />
+                
+            <iframe
+              title="GoldSuree store location on Google Maps"
+              src={MAP_EMBED_URL}
+              width="100%"
+              height="100%"
+              style={{ border: 0, display: 'block' }}
+              loading="eager"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+
 
                 <a
                   href={MAP_SEARCH_URL}

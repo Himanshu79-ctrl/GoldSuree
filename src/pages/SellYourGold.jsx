@@ -366,7 +366,9 @@ export default function SellYourGold() {
     <div className="sell-gold-visit__map-embed" id="sell-gold-map">
       <iframe
         title="Google Maps - GoldSuree, SVS Arcade, Electronic City Phase 2, Bengaluru"
-        src="https://www.google.com/maps?q=SVS%20Arcade%2C%20Ananth%20Nagar%20Road%2C%20Electronic%20City%20Phase%202%2C%20Bengaluru%20560100&z=16&output=embed"
+        src={`https://maps.google.com/maps?q=${encodeURIComponent(
+            'GoldSuree - We Buy Gold,1st floor, SVS Arcade, Kammasandra - Ananth Nagar Main Rd, near Vishal Mega Mart, Ananth Nagar, Phase 1, Phase II, Electronic City, Bengaluru, Hebbagodi, Karnataka 560100'
+        )}&z=16&output=embed`}
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
         allowFullScreen
