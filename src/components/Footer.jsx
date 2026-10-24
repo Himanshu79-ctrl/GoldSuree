@@ -53,17 +53,23 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <a
-              href="/"
-              className="inline-block font-editorial text-3xl tracking-wide"
-            >
-              Gold
-              <span className="bg-gradient-to-r from-[#E8BD50] via-[#C99525] to-[#80520C] bg-clip-text text-transparent">
-                Suree
-              </span>
-              <span className="ml-1 align-top text-xs text-[#c5a16b]">
-                ®
-              </span>
-            </a>
+  href="/"
+  className="inline-flex flex-col items-center font-editorial"
+>
+  <span className="text-3xl tracking-wide leading-none">
+    Gold
+    <span className="bg-gradient-to-r from-[#E8BD50] via-[#C99525] to-[#80520C] bg-clip-text text-transparent">
+      Suree
+    </span>
+    <span className="ml-1 align-top text-xs text-[#c5a16b]">
+      ®
+    </span>
+  </span>
+
+  <span className="mt-1.5 text-[8px] font-semibold uppercase tracking-[0.3em] text-[#c5a16b]">
+    WE BUY GOLD
+  </span>
+</a>
 
             <p className="mt-4 max-w-sm text-sm leading-7 text-[#bdb09d]">
               A clearer way to understand the value of your old gold.

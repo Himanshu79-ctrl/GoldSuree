@@ -331,9 +331,15 @@ export default function Navbar() {
               />
             </span>
 
-            <span className="whitespace-nowrap bg-gradient-to-b from-[#E8BD50] via-[#C99525] to-[#80520C] bg-clip-text font-editorial text-[22px] font-medium leading-none tracking-[0.01em] text-transparent sm:text-[27px] min-[1200px]:text-[30px]">
-              GoldSuree
-            </span>
+            <span className="flex flex-col items-center">
+  <span className="whitespace-nowrap bg-gradient-to-b from-[#E8BD50] via-[#C99525] to-[#80520C] bg-clip-text font-editorial text-[22px] font-medium leading-none tracking-[0.01em] text-transparent sm:text-[27px] min-[1200px]:text-[30px]">
+    GoldSuree
+  </span>
+
+  <span className="mt-1 text-[7px] font-semibold uppercase tracking-[0.28em] text-[#80602c] sm:text-[8px]">
+    WE BUY GOLD
+  </span>
+</span>
           </Link>
 
           {/* Right: desktop links and WhatsApp CTA */}
