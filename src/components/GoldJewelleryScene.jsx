@@ -544,11 +544,11 @@ export default function GoldJewelleryScene() {
     gl.setClearAlpha(0)
   }}
   camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV }}
-  dpr={isMobile ? 1 : 1.25}
+  dpr={isMobile ? 1.1 : 1.25}
   frameloop={reducedMotion ? 'demand' : isVisible ? 'always' : 'never'}
   gl={{
     alpha: true,
-    antialias: !isMobile,
+    antialias: true,
     powerPreference: isMobile ? 'default' : 'high-performance',
   }}
   fallback={<div className="gold-scene-fallback">GoldSuree — Your Gold. Your True Worth.</div>}
