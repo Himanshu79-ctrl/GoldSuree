@@ -53,11 +53,11 @@ const goldItems = [
     image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=85',
   },
   {
-    number: '04',
-    title: 'Broken or unwanted gold',
-    description: 'Damaged, mismatched or unused jewellery.',
-    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=85',
-  },
+  number: '04',
+  title: 'Broken or unwanted gold',
+  description: 'Damaged, mismatched or unused jewellery.',
+  image: '/images/broken-unwanted-gold.png',
+},
 ]
 
 const processSteps = [
